@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Roboto, sans-serif;
+}
+div.groupScheduleTableDiv {
+    background: #fff;
+    border: 1px solid #006699;
+    border-radius: 3px;
+}
+
+div.containerPadding1 {
+    padding: 1em;
+}
+
+div.BuildingSpaceTableDiv {
+    background: #fff;
+    border: 1px solid #006699;
+    border-radius: 3px;
+}
+
+/* table.groupScheduleTable */
+table.groupScheduleTable {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+}
+
+table.groupScheduleTable td {
+    border-bottom: solid 1px #00496B;
+}
+
+table.groupScheduleTable td, #result table th {
+    padding: 3px 10px;
+}
+
+table.groupScheduleTable td:nth-child(1),
+table.groupScheduleTable td:nth-child(3) {
+    width: 45px;
+    text-align: center;
+}
+
+
+table.groupScheduleTable tbody td {
+    color: #00496B;
+    border-left: 1px solid #E1EEF4;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+table.groupScheduleTable tbody .alt td {
+    background: #E1EEF4;
+    color: #00496B;
+}
+
+table.groupScheduleTable tbody td:first-child {
+    border-left: none;
+}
+
+table.groupScheduleTable tbody tr:last-child td {
+    border-bottom: none;
+}
+/* table.groupScheduleTable */
+
+/* table.groupDisciplinesTable */
+div.groupDisciplinesTableDiv {
+    width: 100%;
+    background: #fff;
+    border: 1px solid #006699;
+    border-radius: 3px;
+    margin: 0 auto;
+}
+
+table.groupDisciplinesTable {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+}
+
+table.groupDisciplinesTable td {
+    border-bottom: solid 1px #00496B;
+}
+
+table.groupDisciplinesTable td, #result table th {
+    padding: 3px 10px;
+}
+
+table.groupDisciplinesTable td:nth-child(1) {
+    width: 45px;
+}
+
+table.groupDisciplinesTable td:nth-child(2),
+table.groupDisciplinesTable td:nth-child(3),
+table.groupDisciplinesTable td:nth-child(4),
+table.groupDisciplinesTable td:nth-child(5)
+{
+    text-align: center;
+}
+
+
+table.groupDisciplinesTable tbody td {
+    color: #00496B;
+    border-left: 1px solid #E1EEF4;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+table.groupDisciplinesTable tbody .alt td {
+    background: #E1EEF4;
+    color: #00496B;
+}
+
+table.groupDisciplinesTable tbody td:first-child {
+    border-left: none;
+}
+
+table.groupDisciplinesTable tbody tr:last-child td {
+    border-bottom: none;
+}
+/* table.groupDisciplinesTable */
+
+Link MenuItem {
+    color: inherit;
+}
+
+/* table.BuildingSpaceTable */
+table.BuildingSpaceTable {
+    border-collapse: collapse;
+    text-align: left;
+    width: 100%;
+}
+
+table.BuildingSpaceTable td {
+    border-bottom: solid 1px #00496B;
+    text-align: center;
+}
+
+table.BuildingSpaceTable td, #result table th {
+    padding: 3px 10px;
+}
+
+
+table.BuildingSpaceTable tbody td {
+    color: #00496B;
+    border-left: 1px solid #E1EEF4;
+    font-size: 12px;
+    font-weight: normal;
+}
+
+table.BuildingSpaceTable tbody .alt td {
+    background: #E1EEF4;
+    color: #00496B;
+}
+
+table.BuildingSpaceTable tbody td:first-child {
+    border-left: none;
+}
+
+table.BuildingSpaceTable tbody tr:last-child td {
+    border-bottom: none;
+}
+/* table.BuildingSpaceTable */
+
+a.HomeMenu {
+    font-size: 1.5em;
+    margin: 1em;
+}

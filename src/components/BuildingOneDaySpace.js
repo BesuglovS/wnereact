@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import {MuiThemeProvider} from "material-ui";
-import App from '../App'
+import App from '../containers/App'
 import {Card, CardHeader, CardText} from 'material-ui/Card';
 import DatePicker from 'material-ui/DatePicker';
 import areIntlLocalesSupported from 'intl-locales-supported';
@@ -165,48 +164,46 @@ class BuildingOneDaySpace extends Component {
         )
 
         return (
-            <MuiThemeProvider>
-                <App>
-                    <div>
-                        <Card>
-                            <CardHeader
-                                title="Занятость корпуса"
-                                subtitle=""
+            <App>
+                <div>
+                    <Card>
+                        <CardHeader
+                            title="Занятость корпуса"
+                            subtitle=""
+                        />
+
+                        <CardText>
+
+                            <DatePicker
+                                hintText="Выберите дату"
+                                DateTimeFormat={DateTimeFormat}
+                                autoOk={true}
+                                cancelLabel="Отмена"
+                                locale="ru"
+                                container="inline"
+                                value={this.state.scheduleDate}
+                                onChange={this.dateChanged.bind(this)}
                             />
 
-                            <CardText>
+                            <SelectField
+                                floatingLabelText="Выберите корпус"
+                                value={this.state.buildingId}
+                                onChange={this.selectedBuildingChanged.bind(this)}
+                            >
+                                {buildingsListItems}
+                            </SelectField>
 
-                                <DatePicker
-                                    hintText="Выберите дату"
-                                    DateTimeFormat={DateTimeFormat}
-                                    autoOk={true}
-                                    cancelLabel="Отмена"
-                                    locale="ru"
-                                    container="inline"
-                                    value={this.state.scheduleDate}
-                                    onChange={this.dateChanged.bind(this)}
-                                />
+                        </CardText>
 
-                                <SelectField
-                                    floatingLabelText="Выберите корпус"
-                                    value={this.state.buildingId}
-                                    onChange={this.selectedBuildingChanged.bind(this)}
-                                >
-                                    {buildingsListItems}
-                                </SelectField>
+                    </Card>
 
-                            </CardText>
-
-                        </Card>
-
-                        <Card>
-                            <CardText>
-                                {BuildingSpace}
-                            </CardText>
-                        </Card>
-                    </div>
-                </App>
-            </MuiThemeProvider>
+                    <Card>
+                        <CardText>
+                            {BuildingSpace}
+                        </CardText>
+                    </Card>
+                </div>
+            </App>
         )
     }
 }

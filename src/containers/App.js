@@ -1,10 +1,18 @@
 import React, { Component } from 'react';
-import './App.css';
+import '../css/App.css';
 import {MuiThemeProvider} from "material-ui";
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
 import AppBar from 'material-ui/AppBar'
 import {Link} from 'react-router-dom'
+import MenuIcon from 'material-ui/svg-icons/navigation/menu'
+import Divider from 'material-ui/Divider';
+
+const iconStyles = {
+    marginRight: 24,
+    cursor: "pointer"
+};
+
 
 class App extends Component {
     constructor(props) {
@@ -32,11 +40,15 @@ class App extends Component {
                             open={this.state.menuOpen}
                             onRequestChange={(menuOpen) => this.setState({menuOpen})}
                         >
-                            <Link to="/" style={{ textDecoration: 'none' }}>
-                                <MenuItem onClick={this.handleClose}>Главная</MenuItem>
-                            </Link>
+                            <div onClick={this.handleClose}
+                                 className="containerPadding1 menuTop">
+                                <MenuIcon style={iconStyles} />
+                                <span>Расписание СГОАН</span>
+                            </div>
 
-                            <Link to="/groupSchedule" style={{ textDecoration: 'none' }}>
+                            <Divider />
+
+                            <Link to="/" style={{ textDecoration: 'none' }}>
                                 <MenuItem onClick={this.handleClose}>Расписание группы</MenuItem>
                             </Link>
 

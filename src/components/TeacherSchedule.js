@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import {MuiThemeProvider} from "material-ui";
-import App from '../App'
+import App from '../containers/App'
 import {Card, CardHeader, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
@@ -186,49 +185,47 @@ class TeacherSchedule extends Component {
         }
 
         return (
-            <MuiThemeProvider>
-                <App>
-                    <div>
-                        <Card>
-                            <CardHeader
-                                title="Расписание преподавателя"
-                                subtitle=""
-                            />
+            <App>
+                <div className="teacherScheduleDiv">
+                    <Card>
+                        <CardHeader
+                            title="Расписание преподавателя"
+                            subtitle=""
+                        />
 
-                            <CardText>
+                        <CardText>
 
-                                <SelectField
-                                    style={ this.styles.teachersListWidth }
-                                    floatingLabelText="Выберите преподавателя"
-                                    value={this.state.teacherId}
-                                    onChange={this.selectedTeacherChanged.bind(this)}
-                                >
-                                    {teacherListItems}
-                                </SelectField>
+                            <SelectField
+                                style={ this.styles.teachersListWidth }
+                                floatingLabelText="Выберите преподавателя"
+                                value={this.state.teacherId}
+                                onChange={this.selectedTeacherChanged.bind(this)}
+                            >
+                                {teacherListItems}
+                            </SelectField>
 
-                                <br />
+                            <br />
 
-                                <SelectField
-                                    style={ this.styles.weeksListWidth }
-                                    floatingLabelText="Выберите неделю"
-                                    value={this.state.week}
-                                    onChange={this.selectedWeekChanged.bind(this)}
-                                >
-                                    {weeks}
-                                </SelectField>
+                            <SelectField
+                                style={ this.styles.weeksListWidth }
+                                floatingLabelText="Выберите неделю"
+                                value={this.state.week}
+                                onChange={this.selectedWeekChanged.bind(this)}
+                            >
+                                {weeks}
+                            </SelectField>
 
-                            </CardText>
+                        </CardText>
 
-                        </Card>
+                    </Card>
 
-                        <Card>
-                            <CardText>
-                                {TeacherWeekScheduleWrapper()}
-                            </CardText>
-                        </Card>
-                    </div>
-                </App>
-            </MuiThemeProvider>
+                    <Card>
+                        <CardText>
+                            {TeacherWeekScheduleWrapper()}
+                        </CardText>
+                    </Card>
+                </div>
+            </App>
         )
     }
 }

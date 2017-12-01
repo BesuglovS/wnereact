@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import {MuiThemeProvider} from "material-ui";
-import App from '../App'
+import App from '../containers/App'
 import MenuItem from 'material-ui/MenuItem';
 import SelectField from 'material-ui/SelectField';
 
@@ -107,22 +106,20 @@ class TeacherDisciplines extends Component {
 
 
         return (
-            <MuiThemeProvider>
-                <App>
-                    <div className="containerPadding1">
-                        <h2>Дисциплины преподавателя</h2>
-                        <SelectField
-                            style={this.styles.teachersListWidth}
-                            floatingLabelText="Выберите преподавателя"
-                            value={this.state.teacherId}
-                            onChange={this.selectedTeacherChanged.bind(this)}
-                        >
-                            {teacherListItems}
-                        </SelectField>
-                        {groupDisciplinesTableDiv}
-                    </div>
-                </App>
-            </MuiThemeProvider>
+            <App>
+                <div className="containerPadding1">
+                    <h2>Дисциплины преподавателя</h2>
+                    <SelectField
+                        style={this.styles.teachersListWidth}
+                        floatingLabelText="Выберите преподавателя"
+                        value={this.state.teacherId}
+                        onChange={this.selectedTeacherChanged.bind(this)}
+                    >
+                        {teacherListItems}
+                    </SelectField>
+                    {groupDisciplinesTableDiv}
+                </div>
+            </App>
         )
     }
 }

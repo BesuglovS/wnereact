@@ -103,7 +103,7 @@ table.groupDisciplinesTable td:nth-child(5)
 table.groupDisciplinesTable tbody td {
     color: #00496B;
     border-left: 1px solid #E1EEF4;
-    font-size: 12px;
+    font-size: 0.6em;
     font-weight: normal;
 }
 
@@ -166,4 +166,22 @@ table.BuildingSpaceTable tbody tr:last-child td {
 a.HomeMenu {
     font-size: 1.5em;
     margin: 1em;
+}
+
+div.menuTop {
+    cursor: pointer;
+}
+
+div.menuTop span {
+    font-size: 1em;
+    position: relative;
+    top: -6px;
+}
+
+div.groupScheduleDiv {
+    max-width: 420px;
+}
+
+div.teacherScheduleDiv {
+    max-width: 420px;
 }

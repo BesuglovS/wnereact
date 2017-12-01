@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
-import {MuiThemeProvider} from "material-ui";
-import App from '../App'
+import App from '../containers/App'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 
@@ -90,6 +89,7 @@ class GroupDisciplines extends Component {
             (this.state.groupDisciplines.length !== 0) ? (
                 <div className="groupDisciplinesTableDiv">
                     <table className="groupDisciplinesTable">
+
                         <tbody>
                         {groupDisciplinesItems}
                         </tbody>
@@ -99,21 +99,19 @@ class GroupDisciplines extends Component {
 
 
         return (
-            <MuiThemeProvider>
-                <App>
-                    <div className="containerPadding1">
-                        <h2>Дисциплины группы</h2>
-                        <SelectField
-                            floatingLabelText="Выберите группу"
-                            value={this.state.groupId}
-                            onChange={this.selectedGroupChanged.bind(this)}
-                        >
-                            {groupListItems}
-                        </SelectField>
-                        {groupDisciplinesTableDiv}
-                    </div>
-                </App>
-            </MuiThemeProvider>
+            <App>
+                <div className="containerPadding1">
+                    <h2>Дисциплины группы</h2>
+                    <SelectField
+                        floatingLabelText="Выберите группу"
+                        value={this.state.groupId}
+                        onChange={this.selectedGroupChanged.bind(this)}
+                    >
+                        {groupListItems}
+                    </SelectField>
+                    {groupDisciplinesTableDiv}
+                </div>
+            </App>
         )
     }
 }

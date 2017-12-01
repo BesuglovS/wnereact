@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 // import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter, Route } from 'react-router-dom'
-import Home from './components/Home'
 import GroupSchedule from "./components/GroupSchedule";
 import GroupDisciplines from './components/GroupDisciplines'
 import TeacherDisciplines from './components/TeacherDisciplines'
@@ -12,8 +11,7 @@ import BuildingOneDaySpace from './components/BuildingOneDaySpace'
 ReactDOM.render(
     <BrowserRouter basename="/md">
         <div>
-            <Route exact path="/" component={Home}/>
-            <Route path="/groupSchedule" component={GroupSchedule}/>
+            <Route exact path="/" component={GroupSchedule}/>
             <Route path="/groupDisciplines" component={GroupDisciplines}/>
             <Route path="/teacherDisciplines" component={TeacherDisciplines}/>
             <Route path="/teacherSchedule" component={TeacherSchedule}/>

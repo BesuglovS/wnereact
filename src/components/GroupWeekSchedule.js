@@ -2,22 +2,21 @@ import React, {Component} from 'react';
 import App from '../containers/App'
 import {Card, CardHeader, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
-import AutoComplete from 'material-ui/AutoComplete';
 import MenuItem from 'material-ui/MenuItem';
 import moment from 'moment'
 import 'moment/locale/ru';
 
-class TeacherSchedule extends Component {
+class GroupWeekSchedule extends Component {
     state = {
-        teacherId: '',
-        teachersList:[],
-        week: 1,
-        teacherSchedule:[],
+        groupId: '',
+        groupsList:[],
+        weeks: [1],
+        groupSchedule:[],
         semesterStarts: null
     }
 
     styles = {
-        teachersListWidth : {
+        groupsListWidth : {
             width: "380px"
         },
         weeksListWidth : {
@@ -26,18 +25,18 @@ class TeacherSchedule extends Component {
     }
 
     componentDidMount() {
-        let teachersListAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=teachers';
-        fetch(teachersListAPIUrl)
+        let mainGroupsAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=mainStudentGroups';
+        fetch(mainGroupsAPIUrl)
             .then((data) => data.json())
             .then((json) => {
                 this.setState({
-                    teachersList: json
+                    groupsList: json
                 })
 
-                const teacherId = localStorage.getItem("teacherId");
-                if (teacherId) {
-                    this.setState({ teacherId: teacherId });
-                    this.selectedTeacherChanged(null, null, teacherId)
+                const groupId = localStorage.getItem("groupId");
+                if (groupId) {
+                    this.setState({ groupId: groupId });
+                    this.selectedGroupChanged(null, null, groupId)
                 }
             })
             .catch(function(error) {
@@ -62,7 +61,7 @@ class TeacherSchedule extends Component {
                     let weekNum = Math.floor(days / 7) + 1
 
                     this.setState({
-                        week: weekNum
+                        weeks: [weekNum]
                     })
 
                     this.selectedWeekChanged(null, null, weekNum)
@@ -73,15 +72,19 @@ class TeacherSchedule extends Component {
             });
     }
 
-    updateSchedule(teacherId, week) {
-        let tId = (teacherId !== undefined) ? teacherId : this.state.teacherId;
-        let w = (week !== undefined) ? week : this.state.week;
-        if (tId === "" || tId == null) return
-        //http://wiki.nayanova.edu/api.php?action=TeacherWeekSchedule&teacherId=57&week=2
-        let teacherWeekSchedule = 'http://wiki.nayanova.edu/api.php?action=TeacherWeekSchedule&teacherId=' +
-            tId +
-            '&week=' + w;
-        fetch(teacherWeekSchedule)
+    updateSchedule(groupId, weeks) {
+
+        console.log("weeks")
+        console.log(weeks)
+
+        let gId = (groupId !== undefined) ? groupId : this.state.groupId;
+        let w = (weeks !== undefined) ? weeks : this.state.weeks;
+        if (gId === "") return
+        //http://wiki.nayanova.edu/api.php?action=weekSchedule&groupId=1&week=2
+        let weekSchedule =
+            'http://wiki.nayanova.edu/api.php?action=weekSchedule&groupId=' + gId +
+            '&week=' + w.join("|");
+        fetch(weekSchedule)
             .then((data) => data.json())
             .then((json) => {
 
@@ -106,7 +109,7 @@ class TeacherSchedule extends Component {
                 }
 
                 this.setState({
-                    teacherSchedule: result
+                    groupSchedule: result
                 })
             })
             .catch(function(error) {
@@ -115,23 +118,25 @@ class TeacherSchedule extends Component {
     }
 
     selectedWeekChanged(e, key, val) {
+        if (!Array.isArray(val)) {
+            val = [val]
+        }
+
         this.setState({
-            week: val
+            weeks: val
         })
 
-        this.updateSchedule(this.state.teacherId, val)
+        this.updateSchedule(this.state.groupId, val)
     }
 
-    selectedTeacherChanged (searchText, dataSource) {
-        let valArray = dataSource.filter(i => i.FIO.indexOf(searchText) >= 0)
-        let val = (valArray.length > 0) ? valArray[0].TeacherId : null
-        localStorage.setItem("teacherId", val);
+    selectedGroupChanged (e, key, val) {
+        localStorage.setItem("groupId", val);
 
         this.setState({
-            teacherId: val
+            groupId: val
         })
 
-        this.updateSchedule(val, this.state.week)
+        this.updateSchedule(val, this.state.weeks)
     }
 
     render() {
@@ -139,9 +144,11 @@ class TeacherSchedule extends Component {
             .map((week) => {
                     let weekLabel =
                         (this.state.semesterStarts !== null) ?
-                            (week + "  ( " +
+                            (this.state.weeks.length > 1) ?
+                                (week) :
+                                ((week + "  ( " +
                                 this.state.semesterStarts.clone().add(week-1, 'week').locale('ru').format('DD MMMM YYYY') + " - " +
-                                this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD MMMM YYYY')+ " )") :
+                                this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD MMMM YYYY')+ " )")) :
                             week
 
                     return (
@@ -151,9 +158,14 @@ class TeacherSchedule extends Component {
                 }
             )
 
-        const TeacherWeekScheduleItems = this.state.teacherSchedule
+
+        const groupListItems = this.state.groupsList.map((group) =>
+            <MenuItem key={group.StudentGroupId} value={group.StudentGroupId} primaryText={group.Name}/>
+        )
+
+        const WeekScheduleItems = this.state.groupSchedule
             .map((dowLessons, index) =>{
-                let date = new Date(dowLessons[0].Date)
+                let date = new Date(dowLessons[0].date)
                 let dateString = moment(date).locale('ru').format('DD MMMM YYYY')
                 let dowString = moment(date).locale('ru').format('dddd');
 
@@ -163,10 +175,12 @@ class TeacherSchedule extends Component {
                             <tr key={index}>
                                 <td>{lesson.Time.substr(0,5)}</td>
                                 <td>
-                                    {lesson.disciplineName} <br />
+                                    {lesson.discName} <br />
+                                    {lesson.FIO} <br />
                                     {lesson.groupName}
+
                                 </td>
-                                <td>{lesson.auditoriumName}</td>
+                                <td>{lesson.audName}</td>
                             </tr>
                         )
                     })
@@ -189,41 +203,38 @@ class TeacherSchedule extends Component {
                     </Card>)
             })
 
-        const TeacherWeekScheduleWrapper =
-            (this.state.teacherSchedule.length === 0) ?
+        const WeekScheduleWrapper =
+            (this.state.groupSchedule.length === 0) ?
                 (<h3>Занятий нет</h3>) :
-                (<div>{TeacherWeekScheduleItems}</div>)
+                (<div>{WeekScheduleItems}</div>)
 
         return (
             <App>
                 <div className="teacherScheduleDiv">
                     <Card>
                         <CardHeader
-                            title="Расписание преподавателя"
+                            title="Расписание группы на неделю"
                             subtitle=""
                         />
 
                         <CardText>
 
-                            <AutoComplete
-                                style={ this.styles.teachersListWidth }
-                                hintText="Выберите преподавателя"
-                                dataSource={this.state.teachersList}
-                                dataSourceConfig = {{
-                                    text: "FIO",
-                                    value: "TeacherId"
-                                }}
-                                fullWidth={true}
-                                filter={AutoComplete.fuzzyFilter}
-                                onUpdateInput={this.selectedTeacherChanged.bind(this)}
-                            />
+                            <SelectField
+                                style={ this.styles.groupsListWidth }
+                                floatingLabelText="Выберите группу"
+                                value={this.state.groupId}
+                                onChange={this.selectedGroupChanged.bind(this)}
+                            >
+                                {groupListItems}
+                            </SelectField>
 
                             <br />
 
                             <SelectField
+                                multiple={true}
                                 style={ this.styles.weeksListWidth }
                                 floatingLabelText="Выберите неделю"
-                                value={this.state.week}
+                                value={this.state.weeks}
                                 onChange={this.selectedWeekChanged.bind(this)}
                             >
                                 {weeks}
@@ -235,7 +246,7 @@ class TeacherSchedule extends Component {
 
                     <Card>
                         <CardText>
-                            {TeacherWeekScheduleWrapper}
+                            {WeekScheduleWrapper}
                         </CardText>
                     </Card>
                 </div>
@@ -244,4 +255,4 @@ class TeacherSchedule extends Component {
     }
 }
 
-export default TeacherSchedule
+export default GroupWeekSchedule

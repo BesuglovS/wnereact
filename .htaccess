@@ -1,0 +1,7 @@
+DirectoryIndex index.html
+
+# Catch all routes to index.html for server routing
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [L,NC]

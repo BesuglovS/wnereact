@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import App from '../containers/App'
-import MenuItem from 'material-ui/MenuItem';
-import SelectField from 'material-ui/SelectField';
+import AutoComplete from 'material-ui/AutoComplete';
 
 class TeacherDisciplines extends Component {
     state = {
@@ -36,7 +35,9 @@ class TeacherDisciplines extends Component {
             });
     }
 
-    selectedTeacherChanged (e, key, val) {
+    selectedTeacherChanged (searchText, dataSource) {
+        let valArray = dataSource.filter(i => i.FIO.indexOf(searchText) >= 0)
+        let val = (valArray.length > 0) ? valArray[0].TeacherId : null
         localStorage.setItem("teacherIdDisciplines", val);
 
         this.setState({
@@ -48,7 +49,7 @@ class TeacherDisciplines extends Component {
 
     updateDisciplineList(teacherId) {
         let tId = (teacherId !== undefined) ? teacherId : this.state.teacherId;
-        if (tId === "") return
+        if (tId === "" || tId == null) return
         //http://wiki.nayanova.edu/api.php?action=list&listtype=teacherDisciplines&teacherId=57
         let teacherScheduleUrl =
             'http://wiki.nayanova.edu/api.php?action=list&listtype=teacherDisciplines&teacherId=' +
@@ -76,11 +77,6 @@ class TeacherDisciplines extends Component {
             4: "зачёт с оценкой"
         }
 
-        const teacherListItems = this.state.teachersList.map((teacher) =>
-            <MenuItem key={teacher.TeacherId}
-                      value={teacher.TeacherId} primaryText={teacher.FIO}/>
-        )
-
         let teacherDisciplinesItems = this.state.teacherDisciplines.map((disc, index) => (
             <tr key={index}>
                 <td>{disc.Name}</td>
@@ -107,16 +103,20 @@ class TeacherDisciplines extends Component {
 
         return (
             <App>
-                <div className="containerPadding1">
+                <div className="teacherDisciplinesDiv containerPadding1">
                     <h2>Дисциплины преподавателя</h2>
-                    <SelectField
-                        style={this.styles.teachersListWidth}
-                        floatingLabelText="Выберите преподавателя"
-                        value={this.state.teacherId}
-                        onChange={this.selectedTeacherChanged.bind(this)}
-                    >
-                        {teacherListItems}
-                    </SelectField>
+                    <AutoComplete
+                        style={ this.styles.teachersListWidth }
+                        hintText="Выберите преподавателя"
+                        dataSource={this.state.teachersList}
+                        dataSourceConfig = {{
+                            text: "FIO",
+                            value: "TeacherId"
+                        }}
+                        fullWidth={true}
+                        filter={AutoComplete.fuzzyFilter}
+                        onUpdateInput={this.selectedTeacherChanged.bind(this)}
+                    />
                     {groupDisciplinesTableDiv}
                 </div>
             </App>

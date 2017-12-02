@@ -36,7 +36,7 @@ class App extends Component {
 
                         <Drawer
                             docked={false}
-                            width={250}
+                            width={280}
                             open={this.state.menuOpen}
                             onRequestChange={(menuOpen) => this.setState({menuOpen})}
                         >
@@ -49,7 +49,11 @@ class App extends Component {
                             <Divider />
 
                             <Link to="/" style={{ textDecoration: 'none' }}>
-                                <MenuItem onClick={this.handleClose}>Расписание группы</MenuItem>
+                                <MenuItem onClick={this.handleClose}>Расписание группы на неделю</MenuItem>
+                            </Link>
+
+                            <Link to="/groupDaySchedule" style={{ textDecoration: 'none' }}>
+                                <MenuItem onClick={this.handleClose}>Расписание группы на один день</MenuItem>
                             </Link>
 
                             <Link to="/teacherSchedule" style={{ textDecoration: 'none' }}>
@@ -66,6 +70,10 @@ class App extends Component {
 
                             <Link to="/buildingOneDaySpace" style={{ textDecoration: 'none' }}>
                                 <MenuItem onClick={this.handleClose}>Занятость корпуса</MenuItem>
+                            </Link>
+
+                            <Link to="/lastLesson" style={{ textDecoration: 'none' }}>
+                                <MenuItem onClick={this.handleClose}>Последний урок</MenuItem>
                             </Link>
                         </Drawer>
                         <main>

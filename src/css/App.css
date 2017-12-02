@@ -185,3 +185,16 @@ div.groupScheduleDiv {
 div.teacherScheduleDiv {
     max-width: 420px;
 }
+
+div.groupDisciplinesDiv {
+    max-width: 420px;
+}
+
+div.teacherDisciplinesDiv {
+    max-width: 420px;
+}
+
+div.lastLessonDiv {
+    max-width: 420px;
+    font-size: 0.7em;
+}

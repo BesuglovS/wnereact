@@ -2,12 +2,14 @@ import React, {Component} from 'react';
 import App from '../containers/App'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import moment from 'moment'
+import 'moment/locale/ru';
 
-class GroupDisciplines extends Component {
+class LastLesson extends Component {
     state = {
         groupId: '',
         groupsList:[],
-        groupDisciplines:[]
+        lastLessonsList:[]
     }
 
     componentDidMount() {
@@ -37,28 +39,27 @@ class GroupDisciplines extends Component {
             groupId: val
         })
 
-        this.updateDisciplineList(val)
+        this.updateLastLessonsList(val)
     }
 
-    updateDisciplineList(groupId) {
+    updateLastLessonsList(groupId) {
         let studentGroupId = (groupId !== undefined) ? groupId : this.state.groupId;
         if (studentGroupId === "") return
-        //http://wiki.nayanova.edu/api.php?action=list&listtype=groupDisciplines&groupId=1
+        //http://wiki.nayanova.edu/api.php?action=LastLessons&groupId=15
         let dailyScheduleAPIUrl =
-            'http://wiki.nayanova.edu/api.php?action=list&listtype=groupDisciplines&groupId=' +
+            'http://wiki.nayanova.edu/api.php?action=LastLessons&groupId=' +
             studentGroupId;
         fetch(dailyScheduleAPIUrl)
             .then((data) => data.json())
             .then((json) => {
                 this.setState({
-                    groupDisciplines: json
+                    lastLessonsList: json
                 })
             })
             .catch(function(error) {
                 console.log(error)
             });
     }
-
 
 
     render() {
@@ -74,24 +75,24 @@ class GroupDisciplines extends Component {
             <MenuItem key={group.StudentGroupId} value={group.StudentGroupId} primaryText={group.Name}/>
         )
 
-        let groupDisciplinesItems = this.state.groupDisciplines.map((disc, index) => (
-            <tr key={index}>
-                <td>{disc.Name}</td>
-                <td>{disc.StudentGroupName}</td>
-                <td>{disc.AuditoriumHours}</td>
-                <td>{disc.LectureHours}</td>
-                <td>{disc.PracticalHours}</td>
-                <td>{Attestation[disc.Attestation]}</td>
-            </tr>
-        ))
+        let lastLessonsItems = this.state.lastLessonsList.map((disc, index) => {
+            let fancyDate = moment(disc.lastLessonDate).locale('ru').format('DD MMMM YYYY');
+            return (
+                <tr key={index}>
+                    <td>{disc.Name}</td>
+                    <td>{disc.GroupName}</td>
+                    <td>{fancyDate}</td>
+                    <td>{disc.teacherFIO}</td>
+                    <td>{Attestation[disc.Attestation]}</td>
+                </tr>
+            )})
 
-        let groupDisciplinesTableDiv =
-            (this.state.groupDisciplines.length !== 0) ? (
+        let lastLessonTableDiv =
+            (this.state.lastLessonsList.length !== 0) ? (
                 <div className="groupDisciplinesTableDiv">
                     <table className="groupDisciplinesTable">
-
                         <tbody>
-                        {groupDisciplinesItems}
+                        {lastLessonsItems}
                         </tbody>
                     </table>
                 </div>
@@ -100,8 +101,8 @@ class GroupDisciplines extends Component {
 
         return (
             <App>
-                <div className="groupDisciplinesDiv containerPadding1">
-                    <h2>Дисциплины группы</h2>
+                <div className="lastLessonDiv containerPadding1">
+                    <h2>Последний урок</h2>
                     <SelectField
                         floatingLabelText="Выберите группу"
                         value={this.state.groupId}
@@ -109,11 +110,11 @@ class GroupDisciplines extends Component {
                     >
                         {groupListItems}
                     </SelectField>
-                    {groupDisciplinesTableDiv}
+                    {lastLessonTableDiv}
                 </div>
             </App>
         )
     }
 }
 
-export default GroupDisciplines
+export default LastLesson

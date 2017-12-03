@@ -3,6 +3,7 @@ import App from '../containers/App'
 import {Card, CardHeader, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import Toggle from 'material-ui/Toggle';
 import moment from 'moment'
 import 'moment/locale/ru';
 
@@ -12,15 +13,20 @@ class GroupWeekSchedule extends Component {
         groupsList:[],
         weeks: [1],
         groupSchedule:[],
-        semesterStarts: null
+        semesterStarts: null,
+        severalWeeks: false,
+        chooseWeekTip: "Выберите неделю"
     }
 
     styles = {
         groupsListWidth : {
-            width: "380px"
+            width: "100%"
         },
         weeksListWidth : {
-            width: "380px"
+            width: "100%"
+        },
+        toggle: {
+            marginTop: 16,
         }
     }
 
@@ -60,10 +66,6 @@ class GroupWeekSchedule extends Component {
                     let days = momentNow.diff(momentSemesterStarts, 'days')
                     let weekNum = Math.floor(days / 7) + 1
 
-                    this.setState({
-                        weeks: [weekNum]
-                    })
-
                     this.selectedWeekChanged(null, null, weekNum)
                 }
             })
@@ -73,43 +75,49 @@ class GroupWeekSchedule extends Component {
     }
 
     updateSchedule(groupId, weeks) {
-
-        console.log("weeks")
-        console.log(weeks)
-
         let gId = (groupId !== undefined) ? groupId : this.state.groupId;
-        let w = (weeks !== undefined) ? weeks : this.state.weeks;
+        let w = (weeks !== undefined) ?
+            Array.isArray(weeks) ? weeks : [weeks] :
+            Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
         if (gId === "") return
         //http://wiki.nayanova.edu/api.php?action=weekSchedule&groupId=1&week=2
         let weekSchedule =
-            'http://wiki.nayanova.edu/api.php?action=weekSchedule&groupId=' + gId +
-            '&week=' + w.join("|");
+            'http://wiki.nayanova.edu/api.php?action=weeksSchedule&groupId=' + gId +
+            '&weeks=' + w.join("|");
         fetch(weekSchedule)
             .then((data) => data.json())
             .then((json) => {
 
-                let result = []
+                let r = []
 
-                let olddow = -1;
-                let currentDowLessons = [];
-                for(let i = 0; i < json.length; i++) {
-                    let lesson = json[i];
+                for (const weekNum in json) {
+                    let result = []
 
-                    if ((lesson.dow !== olddow) && (i !== 0)) {
+                    let groupWeekSchedule = json[weekNum]
+
+                    let olddow = -1;
+                    let currentDowLessons = [];
+                    for (let i = 0; i < groupWeekSchedule.length; i++) {
+                        let lesson = groupWeekSchedule[i];
+
+                        if ((lesson.dow !== olddow) && (i !== 0)) {
+                            result.push(currentDowLessons)
+                            currentDowLessons = []
+                        }
+
+                        currentDowLessons.push(lesson)
+
+                        olddow = lesson.dow;
+                    }
+                    if (currentDowLessons.length > 0) {
                         result.push(currentDowLessons)
-                        currentDowLessons = []
                     }
 
-                    currentDowLessons.push(lesson)
-
-                    olddow = lesson.dow;
-                }
-                if (currentDowLessons.length > 0) {
-                    result.push(currentDowLessons)
+                    r.push(result)
                 }
 
                 this.setState({
-                    groupSchedule: result
+                    groupSchedule: r
                 })
             })
             .catch(function(error) {
@@ -117,10 +125,17 @@ class GroupWeekSchedule extends Component {
             });
     }
 
-    selectedWeekChanged(e, key, val) {
-        if (!Array.isArray(val)) {
+    selectedWeekChanged(e, key, val, oneOrMany) {
+        let severalWeeks = (oneOrMany === undefined) ?
+            this.state.severalWeeks : (oneOrMany === 'many');
+
+        if (!Array.isArray(val) && severalWeeks)
+        {
             val = [val]
         }
+
+        console.log("week changed")
+        console.log(val)
 
         this.setState({
             weeks: val
@@ -136,25 +151,34 @@ class GroupWeekSchedule extends Component {
             groupId: val
         })
 
-        this.updateSchedule(val, this.state.weeks)
+        var weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
+
+        this.updateSchedule(val, weeks)
     }
 
     render() {
         const weeks = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
             .map((week) => {
-                    let weekLabel =
-                        (this.state.semesterStarts !== null) ?
-                            (this.state.weeks.length > 1) ?
-                                (week) :
-                                ((week + "  ( " +
-                                this.state.semesterStarts.clone().add(week-1, 'week').locale('ru').format('DD MMMM YYYY') + " - " +
-                                this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD MMMM YYYY')+ " )")) :
-                            week
+                var weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
 
-                    return (
-                        <MenuItem key={week} value={week}
-                                  primaryText={weekLabel}
-                        />)
+                let weekLabel =
+                    (this.state.semesterStarts !== null) ?
+                        (weeks.length > 2) ?
+                            (week) :
+                            (weeks.length > 1) ?
+                                ((week + "  ( " +
+                                    this.state.semesterStarts.clone().add(week-1, 'week').locale('ru').format('DD.MM') + " - " +
+                                    this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD.MM')+ " )"))
+                            :
+                            ((week + "  ( " +
+                            this.state.semesterStarts.clone().add(week-1, 'week').locale('ru').format('DD MMMM YYYY') + " - " +
+                            this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD MMMM YYYY')+ " )")) :
+                        week
+
+                return (
+                    <MenuItem key={week} value={week}
+                              primaryText={weekLabel}
+                    />)
                 }
             )
 
@@ -164,49 +188,48 @@ class GroupWeekSchedule extends Component {
         )
 
         const WeekScheduleItems = this.state.groupSchedule
-            .map((dowLessons, index) =>{
-                let date = new Date(dowLessons[0].date)
-                let dateString = moment(date).locale('ru').format('DD MMMM YYYY')
-                let dowString = moment(date).locale('ru').format('dddd');
+            .map((groupWeekLessons, index) =>{
 
-                const dayLessons = dowLessons
-                    .map((lesson, index) =>{
-                        return (
-                            <tr key={index}>
-                                <td>{lesson.Time.substr(0,5)}</td>
-                                <td>
-                                    {lesson.discName} <br />
-                                    {lesson.FIO} <br />
-                                    {lesson.groupName}
+                return groupWeekLessons.map((dowLessons, index) => {
+                    let date = new Date(dowLessons[0].date)
+                    let dateString = moment(date).locale('ru').format('DD MMMM YYYY')
+                    let dowString = moment(date).locale('ru').format('dddd');
 
-                                </td>
-                                <td>{lesson.audName}</td>
-                            </tr>
-                        )
-                    })
+                    const dayLessons = Array.from(dowLessons)
+                        .map((lesson, index) =>{
+                            return (
+                                <tr key={index}>
+                                    <td>{lesson.Time.substr(0,5)}</td>
+                                    <td>
+                                        {lesson.discName} <br />
+                                        {lesson.FIO} <br />
+                                        {lesson.groupName}
 
-                return (
-                    <Card key={index}>
-                        <CardHeader
-                            title={dateString}
-                            subtitle={dowString}
-                        />
-                        <CardText>
-                            <div className="groupScheduleTableDiv">
-                                <table className="groupScheduleTable">
-                                    <tbody>
-                                    {dayLessons}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </CardText>
-                    </Card>)
+                                    </td>
+                                    <td>{lesson.audName}</td>
+                                </tr>
+                            )
+                        })
+
+                    return (
+                        <Card key={index}>
+                            <CardHeader
+                                title={dateString}
+                                subtitle={dowString}
+                            />
+                            <CardText>
+                                <div className="groupScheduleTableDiv">
+                                    <table className="groupScheduleTable">
+                                        <tbody>
+                                        {dayLessons}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </CardText>
+                        </Card>
+                    )
+                })
             })
-
-        const WeekScheduleWrapper =
-            (this.state.groupSchedule.length === 0) ?
-                (<h3>Занятий нет</h3>) :
-                (<div>{WeekScheduleItems}</div>)
 
         return (
             <App>
@@ -231,14 +254,34 @@ class GroupWeekSchedule extends Component {
                             <br />
 
                             <SelectField
-                                multiple={true}
+                                multiple={ this.state.severalWeeks }
                                 style={ this.styles.weeksListWidth }
-                                floatingLabelText="Выберите неделю"
+                                floatingLabelText={this.state.chooseWeekTip}
                                 value={this.state.weeks}
                                 onChange={this.selectedWeekChanged.bind(this)}
                             >
                                 {weeks}
                             </SelectField>
+
+                            <Toggle
+                                label="Несколько недель"
+                                style={this.styles.toggle}
+                                defaultToggled={false}
+                                toggled = {this.state.severalWeeks}
+                                onToggle = {() => {
+                                    let oldStateSeveralWeeks = this.state.severalWeeks
+
+                                    this.setState({ severalWeeks: !this.state.severalWeeks })
+
+                                    if (!oldStateSeveralWeeks) {
+                                        this.setState({ chooseWeekTip: "Выберите недели" })
+                                        this.selectedWeekChanged(null, null, [this.state.weeks], 'many')
+                                    } else {
+                                        this.setState({ chooseWeekTip: "Выберите неделю" })
+                                        this.selectedWeekChanged(null, null, this.state.weeks[0], 'one')
+                                    }
+                                } }
+                            />
 
                         </CardText>
 
@@ -246,7 +289,7 @@ class GroupWeekSchedule extends Component {
 
                     <Card>
                         <CardText>
-                            {WeekScheduleWrapper}
+                            {WeekScheduleItems}
                         </CardText>
                     </Card>
                 </div>

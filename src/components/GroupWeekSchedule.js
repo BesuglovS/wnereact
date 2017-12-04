@@ -4,6 +4,7 @@ import {Card, CardHeader, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import Toggle from 'material-ui/Toggle';
+import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
 import moment from 'moment'
 import 'moment/locale/ru';
 
@@ -27,7 +28,111 @@ class GroupWeekSchedule extends Component {
         },
         toggle: {
             marginTop: 16,
+        },
+        timecolumn : {
+            width: "50px"
         }
+    }
+
+    GatherWeeksToString(weekArray)
+    {
+        let result = []
+        let boolweeks = []
+        for(let i=0; i <=25; i++) {
+            boolweeks[i] = false
+        }
+
+        weekArray.forEach((w) => {
+            boolweeks[w] = true
+        })
+
+        let prev = false
+        let baseNum = 25
+        for(let i=0; i <=25; i++) {
+            if ((prev === false) && (boolweeks[i] === true)) {
+                baseNum = i
+            }
+
+            if ((boolweeks[i] === false) && ((i - baseNum) > 2)) {
+                result.push(baseNum + "-" + (i-1).toString(10))
+
+                for(let k = baseNum; k < i; k++) {
+                    boolweeks[k] = false
+                }
+            }
+
+            if (boolweeks[i] === false) {
+                baseNum = 25
+            }
+
+            prev = boolweeks[i]
+        }
+
+        prev = false
+        baseNum = 25
+        for(let i=1; i <=25; i += 2) {
+            if ((prev === false) && (boolweeks[i] === true)) {
+                baseNum = i
+            }
+
+            if ((boolweeks[i] === false) && ((i - baseNum) > 4)) {
+                result.push(baseNum + "-" + (i-2).toString(10) + " (нечёт.)")
+
+                for(let k = baseNum; k < i; k += 2) {
+                    boolweeks[k] = false
+                }
+            }
+
+            if (boolweeks[i] === false) {
+                baseNum = 25
+            }
+
+            prev = boolweeks[i]
+        }
+
+        prev = false
+        baseNum = 25
+        for(let i=2; i <=25; i += 2) {
+            if ((prev === false) && (boolweeks[i] === true)) {
+                baseNum = i
+            }
+
+            if ((boolweeks[i] === false) && ((i - baseNum) > 4)) {
+                result.push(baseNum + "-" + (i-2).toString(10) + " (чёт.)")
+
+                for(let k = baseNum; k < i; k += 2) {
+                    boolweeks[k] = false
+                }
+            }
+
+            if (boolweeks[i] === false) {
+                baseNum = 25
+            }
+
+            prev = boolweeks[i]
+        }
+
+        for(let i = 1; i <= 25; i++) {
+            if (boolweeks[i]) {
+                result.push(i)
+            }
+        }
+
+        result.sort((a,b) => {
+            let aInt = (typeof a === 'string' && a.indexOf('-') !== -1) ?
+                parseInt(a.substr(0,a.indexOf('-')), 10) :
+                parseInt(a, 10)
+
+            let bInt = (typeof b === 'string' && b.indexOf('-') !== -1) ?
+                parseInt(b.substr(0,b.indexOf('-')), 10) :
+                parseInt(b, 10)
+
+            return aInt - bInt
+        })
+
+        let resultString = result.join(', ')
+
+        return resultString
     }
 
     componentDidMount() {
@@ -80,44 +185,15 @@ class GroupWeekSchedule extends Component {
             Array.isArray(weeks) ? weeks : [weeks] :
             Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
         if (gId === "") return
-        //http://wiki.nayanova.edu/api.php?action=weekSchedule&groupId=1&week=2
+        //http://wiki.nayanova.edu/api.php?action=weeksSchedule&groupId=15&weeks=15|16&compactResult
         let weekSchedule =
             'http://wiki.nayanova.edu/api.php?action=weeksSchedule&groupId=' + gId +
-            '&weeks=' + w.join("|");
+            '&weeks=' + w.join("|") + "&compactResult";
         fetch(weekSchedule)
             .then((data) => data.json())
             .then((json) => {
-
-                let r = []
-
-                for (const weekNum in json) {
-                    let result = []
-
-                    let groupWeekSchedule = json[weekNum]
-
-                    let olddow = -1;
-                    let currentDowLessons = [];
-                    for (let i = 0; i < groupWeekSchedule.length; i++) {
-                        let lesson = groupWeekSchedule[i];
-
-                        if ((lesson.dow !== olddow) && (i !== 0)) {
-                            result.push(currentDowLessons)
-                            currentDowLessons = []
-                        }
-
-                        currentDowLessons.push(lesson)
-
-                        olddow = lesson.dow;
-                    }
-                    if (currentDowLessons.length > 0) {
-                        result.push(currentDowLessons)
-                    }
-
-                    r.push(result)
-                }
-
                 this.setState({
-                    groupSchedule: r
+                    groupSchedule: json
                 })
             })
             .catch(function(error) {
@@ -133,9 +209,6 @@ class GroupWeekSchedule extends Component {
         {
             val = [val]
         }
-
-        console.log("week changed")
-        console.log(val)
 
         this.setState({
             weeks: val
@@ -187,48 +260,152 @@ class GroupWeekSchedule extends Component {
             <MenuItem key={group.StudentGroupId} value={group.StudentGroupId} primaryText={group.Name}/>
         )
 
-        const WeekScheduleItems = this.state.groupSchedule
-            .map((groupWeekLessons, index) =>{
+        var dowList = Object.keys(this.state.groupSchedule).sort()
 
-                return groupWeekLessons.map((dowLessons, index) => {
-                    let date = new Date(dowLessons[0].date)
-                    let dateString = moment(date).locale('ru').format('DD MMMM YYYY')
-                    let dowString = moment(date).locale('ru').format('dddd');
+        let ruDOW = {
+            1: "Понедельник",
+            2: "Вторник",
+            3: "Среда",
+            4: "Четверг",
+            5: "Пятница",
+            6: "Суббота",
+            7: "Воскресенье"
+        }
 
-                    const dayLessons = Array.from(dowLessons)
-                        .map((lesson, index) =>{
-                            return (
-                                <tr key={index}>
-                                    <td>{lesson.Time.substr(0,5)}</td>
-                                    <td>
-                                        {lesson.discName} <br />
-                                        {lesson.FIO} <br />
-                                        {lesson.groupName}
+        const WeekScheduleItems = dowList
+            .map((dow) => {
 
-                                    </td>
-                                    <td>{lesson.audName}</td>
-                                </tr>
-                            )
+                if (this.state.groupSchedule[dow].length === 0) {
+                    return null
+                }
+
+                var rings = Object.keys(this.state.groupSchedule[dow])
+                    .sort((a, b) => {
+                        let splitA = a.split(":")
+                        let splitB = b.split(":")
+
+                        let aSum = parseInt(splitA[0], 10) * 60 + parseInt(splitA[1], 10)
+                        let bSum = parseInt(splitB[0], 10) * 60 + parseInt(splitB[1], 10)
+
+                        return aSum - bSum
+                    })
+
+                const dowLessons = rings.map((time, index) => {
+
+                    let tfdIds = Object.keys(this.state.groupSchedule[dow][time])
+
+                    tfdIds.sort((tfdId1, tfdId2) => {
+                        let auds1 = Object.keys(this.state.groupSchedule[dow][time][tfdId1]["weeksAndAuds"])
+                        let weeks1 = []
+                        auds1.forEach((a) => {
+                            weeks1.push(...this.state.groupSchedule[dow][time][tfdId1]["weeksAndAuds"][a])
+                        })
+                        let minWeek1 = Math.min(...weeks1)
+
+                        let auds2 = Object.keys(this.state.groupSchedule[dow][time][tfdId2]["weeksAndAuds"])
+                        let weeks2 = []
+                        auds2.forEach((a) => {
+                            weeks2.push(...this.state.groupSchedule[dow][time][tfdId2]["weeksAndAuds"][a])
+                        })
+                        let minWeek2 = Math.min(...weeks2)
+
+                        return minWeek1 - minWeek2
+                    })
+
+                    let firsttime = true
+
+                    let tfdLessons = tfdIds.map((tfdId) => {
+                        let auds = Object.keys(this.state.groupSchedule[dow][time][tfdId]["weeksAndAuds"])
+                        let weeks = []
+                        let audsStrings = []
+                        auds.forEach((a) => {
+                            weeks.push(...this.state.groupSchedule[dow][time][tfdId]["weeksAndAuds"][a])
+
+                            let minWeek = Math.min(...this.state.groupSchedule[dow][time][tfdId]["weeksAndAuds"][a])
+                            let obj = {}
+                            obj[minWeek] = this.GatherWeeksToString(
+                                this.state.groupSchedule[dow][time][tfdId]["weeksAndAuds"][a])
+                                + " - " + a
+                            audsStrings.push(obj)
                         })
 
+                        audsStrings.sort((a,b) => {
+                            let aVal = Object.keys(a)[0]
+                            let bVal = Object.keys(b)[0]
+
+                            return aVal - bVal
+                        })
+
+                        audsStrings = audsStrings.map((obj) => {
+                            let key = Object.keys(obj)[0]
+                            return obj[key]
+                        })
+
+
+                        let audsString = ""
+                        if (auds.length === 1) {
+                            audsString = auds[0]
+                        } else {
+                            audsString = audsStrings.map((aud, index) => (<div key={index}>{aud}</div>))
+                        }
+
+                        let weeksString = "(" +
+                            this.GatherWeeksToString(weeks)
+                            + ")"
+
+                        let timeStr = firsttime ? time: ""
+
+                        const timeCol = (timeStr !== "") ?
+                            ((tfdIds.length === 1) ?
+                            (
+                                <TableRowColumn
+                                    style={ this.styles.timecolumn } >
+                                    {timeStr}
+                                </TableRowColumn>
+                            ) :
+                            (
+                                <TableRowColumn
+                                    rowSpan={tfdIds.length}
+                                    style={ this.styles.timecolumn } >
+                                    {timeStr}
+                                </TableRowColumn>
+                            )) : null
+
+                        firsttime = false
+
+                        return(
+                            <TableRow key={tfdId} style={{"borderBottom": "1px solid rgb(224, 224, 224)"}}>
+                                {timeCol}
+                                <TableRowColumn>
+                                    {this.state.groupSchedule[dow][time][tfdId]["lessons"][0].discName} <br />
+                                    {this.state.groupSchedule[dow][time][tfdId]["lessons"][0].teacherFIO} <br />
+                                    {weeksString} <br />
+                                    {audsString}
+                                </TableRowColumn>
+                            </TableRow>
+                        )
+                    })
+
                     return (
-                        <Card key={index}>
-                            <CardHeader
-                                title={dateString}
-                                subtitle={dowString}
-                            />
-                            <CardText>
-                                <div className="groupScheduleTableDiv">
-                                    <table className="groupScheduleTable">
-                                        <tbody>
-                                        {dayLessons}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </CardText>
-                        </Card>
+                        [tfdLessons]
                     )
                 })
+
+                return (
+                    <Card key={dow}>
+                        <CardHeader
+                            title={ruDOW[dow]}
+                            subtitle={""}
+                        />
+                        <CardText>
+                            <Table key={dow}>
+                                <TableBody displayRowCheckbox={false}>
+                                    {dowLessons}
+                                </TableBody>
+                            </Table>
+                        </CardText>
+                    </Card>
+                )
             })
 
         return (

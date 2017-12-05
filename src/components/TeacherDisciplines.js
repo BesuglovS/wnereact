@@ -11,7 +11,7 @@ class TeacherDisciplines extends Component {
 
     styles = {
         teachersListWidth : {
-            width: "380px"
+            width: "100%"
         }
     }
 
@@ -94,6 +94,14 @@ class TeacherDisciplines extends Component {
                 <div className="groupDisciplinesTableDiv">
                     <table className="groupDisciplinesTable">
                         <tbody>
+                            <tr>
+                                <td>Дисциплина</td>
+                                <td>Группа</td>
+                                <td>Аудиторные часы</td>
+                                <td>Лекции</td>
+                                <td>Практики</td>
+                                <td>Отчётность</td>
+                            </tr>
                             {teacherDisciplinesItems}
                         </tbody>
                     </table>

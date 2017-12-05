@@ -89,8 +89,15 @@ class GroupDisciplines extends Component {
             (this.state.groupDisciplines.length !== 0) ? (
                 <div className="groupDisciplinesTableDiv">
                     <table className="groupDisciplinesTable">
-
                         <tbody>
+                        <tr>
+                            <td>Дисциплина</td>
+                            <td>Группа</td>
+                            <td>Аудиторные часы</td>
+                            <td>Лекции</td>
+                            <td>Практики</td>
+                            <td>Отчётность</td>
+                        </tr>
                         {groupDisciplinesItems}
                         </tbody>
                     </table>

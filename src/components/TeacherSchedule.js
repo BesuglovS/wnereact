@@ -4,6 +4,8 @@ import {Card, CardHeader, CardText} from 'material-ui/Card';
 import SelectField from 'material-ui/SelectField';
 import AutoComplete from 'material-ui/AutoComplete';
 import MenuItem from 'material-ui/MenuItem';
+import Toggle from 'material-ui/Toggle';
+import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
 import moment from 'moment'
 import 'moment/locale/ru';
 
@@ -11,18 +13,127 @@ class TeacherSchedule extends Component {
     state = {
         teacherId: '',
         teachersList:[],
-        week: 1,
+        weeks: [1],
         teacherSchedule:[],
-        semesterStarts: null
+        semesterStarts: null,
+        severalWeeks: false,
+        chooseWeekTip: "Выберите неделю"
     }
 
     styles = {
         teachersListWidth : {
-            width: "380px"
+            width: "100%"
         },
         weeksListWidth : {
-            width: "380px"
+            width: "100%"
+        },
+        toggle: {
+            marginTop: 16,
+        },
+        timecolumn : {
+            width: "50px"
         }
+    }
+
+    GatherWeeksToString(weekArray)
+    {
+        let result = []
+        let boolweeks = []
+        for(let i=0; i <=25; i++) {
+            boolweeks[i] = false
+        }
+
+        weekArray.forEach((w) => {
+            boolweeks[w] = true
+        })
+
+        let prev = false
+        let baseNum = 25
+        for(let i=0; i <=25; i++) {
+            if ((prev === false) && (boolweeks[i] === true)) {
+                baseNum = i
+            }
+
+            if ((boolweeks[i] === false) && ((i - baseNum) > 2)) {
+                result.push(baseNum + "-" + (i-1).toString(10))
+
+                for(let k = baseNum; k < i; k++) {
+                    boolweeks[k] = false
+                }
+            }
+
+            if (boolweeks[i] === false) {
+                baseNum = 25
+            }
+
+            prev = boolweeks[i]
+        }
+
+        prev = false
+        baseNum = 25
+        for(let i=1; i <=25; i += 2) {
+            if ((prev === false) && (boolweeks[i] === true)) {
+                baseNum = i
+            }
+
+            if ((boolweeks[i] === false) && ((i - baseNum) > 4)) {
+                result.push(baseNum + "-" + (i-2).toString(10) + " (нечёт.)")
+
+                for(let k = baseNum; k < i; k += 2) {
+                    boolweeks[k] = false
+                }
+            }
+
+            if (boolweeks[i] === false) {
+                baseNum = 25
+            }
+
+            prev = boolweeks[i]
+        }
+
+        prev = false
+        baseNum = 25
+        for(let i=2; i <=25; i += 2) {
+            if ((prev === false) && (boolweeks[i] === true)) {
+                baseNum = i
+            }
+
+            if ((boolweeks[i] === false) && ((i - baseNum) > 4)) {
+                result.push(baseNum + "-" + (i-2).toString(10) + " (чёт.)")
+
+                for(let k = baseNum; k < i; k += 2) {
+                    boolweeks[k] = false
+                }
+            }
+
+            if (boolweeks[i] === false) {
+                baseNum = 25
+            }
+
+            prev = boolweeks[i]
+        }
+
+        for(let i = 1; i <= 25; i++) {
+            if (boolweeks[i]) {
+                result.push(i)
+            }
+        }
+
+        result.sort((a,b) => {
+            let aInt = (typeof a === 'string' && a.indexOf('-') !== -1) ?
+                parseInt(a.substr(0,a.indexOf('-')), 10) :
+                parseInt(a, 10)
+
+            let bInt = (typeof b === 'string' && b.indexOf('-') !== -1) ?
+                parseInt(b.substr(0,b.indexOf('-')), 10) :
+                parseInt(b, 10)
+
+            return aInt - bInt
+        })
+
+        let resultString = result.join(', ')
+
+        return resultString
     }
 
     componentDidMount() {
@@ -73,40 +184,21 @@ class TeacherSchedule extends Component {
             });
     }
 
-    updateSchedule(teacherId, week) {
+    updateSchedule(teacherId, weeks) {
         let tId = (teacherId !== undefined) ? teacherId : this.state.teacherId;
-        let w = (week !== undefined) ? week : this.state.week;
+        let w = (weeks !== undefined) ?
+            Array.isArray(weeks) ? weeks : [weeks] :
+            Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
         if (tId === "" || tId == null) return
         //http://wiki.nayanova.edu/api.php?action=TeacherWeekSchedule&teacherId=57&week=2
-        let teacherWeekSchedule = 'http://wiki.nayanova.edu/api.php?action=TeacherWeekSchedule&teacherId=' +
+        let teacherWeekSchedule = 'http://wiki.nayanova.edu/api.php?action=teacherWeeksSchedule&teacherId=' +
             tId +
-            '&week=' + w;
+            '&weeks=' + w.join("|") + "&compactResult";
         fetch(teacherWeekSchedule)
             .then((data) => data.json())
             .then((json) => {
-
-                let result = []
-
-                let olddow = -1;
-                let currentDowLessons = [];
-                for(let i = 0; i < json.length; i++) {
-                    let lesson = json[i];
-
-                    if ((lesson.dow !== olddow) && (i !== 0)) {
-                        result.push(currentDowLessons)
-                        currentDowLessons = []
-                    }
-
-                    currentDowLessons.push(lesson)
-
-                    olddow = lesson.dow;
-                }
-                if (currentDowLessons.length > 0) {
-                    result.push(currentDowLessons)
-                }
-
                 this.setState({
-                    teacherSchedule: result
+                    teacherSchedule: json
                 })
             })
             .catch(function(error) {
@@ -114,15 +206,30 @@ class TeacherSchedule extends Component {
             });
     }
 
-    selectedWeekChanged(e, key, val) {
+    selectedWeekChanged(e, key, val, oneOrMany) {
+        let severalWeeks = (oneOrMany === undefined) ?
+            this.state.severalWeeks : (oneOrMany === 'many');
+
+        if (!Array.isArray(val) && severalWeeks)
+        {
+            val = [val]
+        }
+
         this.setState({
-            week: val
+            weeks: val
         })
 
         this.updateSchedule(this.state.teacherId, val)
     }
 
     selectedTeacherChanged (searchText, dataSource) {
+        if (dataSource === null) {
+            this.setState({
+                teacherSchedule: []
+            })
+            return
+        }
+
         let valArray = dataSource.filter(i => i.FIO.indexOf(searchText) >= 0)
         let val = (valArray.length > 0) ? valArray[0].TeacherId : null
         localStorage.setItem("teacherId", val);
@@ -131,17 +238,28 @@ class TeacherSchedule extends Component {
             teacherId: val
         })
 
-        this.updateSchedule(val, this.state.week)
+        var weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
+
+        this.updateSchedule(val, weeks)
     }
 
     render() {
         const weeks = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
             .map((week) => {
+                    var weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
+
                     let weekLabel =
                         (this.state.semesterStarts !== null) ?
-                            (week + "  ( " +
-                                this.state.semesterStarts.clone().add(week-1, 'week').locale('ru').format('DD MMMM YYYY') + " - " +
-                                this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD MMMM YYYY')+ " )") :
+                            (weeks.length > 2) ?
+                                (week) :
+                                (weeks.length > 1) ?
+                                    ((week + "  ( " +
+                                        this.state.semesterStarts.clone().add(week-1, 'week').locale('ru').format('DD.MM') + " - " +
+                                        this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD.MM')+ " )"))
+                                    :
+                                    ((week + "  ( " +
+                                        this.state.semesterStarts.clone().add(week-1, 'week').locale('ru').format('DD MMMM YYYY') + " - " +
+                                        this.state.semesterStarts.clone().add(week-1, 'week').add(6, 'days').locale('ru').format('DD MMMM YYYY')+ " )")) :
                             week
 
                     return (
@@ -151,48 +269,154 @@ class TeacherSchedule extends Component {
                 }
             )
 
-        const TeacherWeekScheduleItems = this.state.teacherSchedule
-            .map((dowLessons, index) =>{
-                let date = new Date(dowLessons[0].Date)
-                let dateString = moment(date).locale('ru').format('DD MMMM YYYY')
-                let dowString = moment(date).locale('ru').format('dddd');
+        var dowList = Object.keys(this.state.teacherSchedule).sort()
 
-                const dayLessons = dowLessons
-                    .map((lesson, index) =>{
-                        return (
-                            <tr key={index}>
-                                <td>{lesson.Time.substr(0,5)}</td>
-                                <td>
-                                    {lesson.disciplineName} <br />
-                                    {lesson.groupName}
-                                </td>
-                                <td>{lesson.auditoriumName}</td>
-                            </tr>
+        let ruDOW = {
+            1: "Понедельник",
+            2: "Вторник",
+            3: "Среда",
+            4: "Четверг",
+            5: "Пятница",
+            6: "Суббота",
+            7: "Воскресенье"
+        }
+
+        const WeekScheduleItems = dowList
+            .map((dow) => {
+
+                if (this.state.teacherSchedule[dow].length === 0) {
+                    return null
+                }
+
+                var rings = Object.keys(this.state.teacherSchedule[dow])
+                    .sort((a, b) => {
+                        let splitA = a.split(":")
+                        let splitB = b.split(":")
+
+                        let aSum = parseInt(splitA[0], 10) * 60 + parseInt(splitA[1], 10)
+                        let bSum = parseInt(splitB[0], 10) * 60 + parseInt(splitB[1], 10)
+
+                        return aSum - bSum
+                    })
+
+                const dowLessons = rings.map((time, index) => {
+
+                    let tfdIds = Object.keys(this.state.teacherSchedule[dow][time])
+
+                    tfdIds.sort((tfdId1, tfdId2) => {
+                        let auds1 = Object.keys(this.state.teacherSchedule[dow][time][tfdId1]["weeksAndAuds"])
+                        let weeks1 = []
+                        auds1.forEach((a) => {
+                            weeks1.push(...this.state.teacherSchedule[dow][time][tfdId1]["weeksAndAuds"][a])
+                        })
+                        let minWeek1 = Math.min(...weeks1)
+
+                        let auds2 = Object.keys(this.state.teacherSchedule[dow][time][tfdId2]["weeksAndAuds"])
+                        let weeks2 = []
+                        auds2.forEach((a) => {
+                            weeks2.push(...this.state.teacherSchedule[dow][time][tfdId2]["weeksAndAuds"][a])
+                        })
+                        let minWeek2 = Math.min(...weeks2)
+
+                        return minWeek1 - minWeek2
+                    })
+
+                    let firsttime = true
+
+                    let tfdLessons = tfdIds.map((tfdId) => {
+                        let auds = Object.keys(this.state.teacherSchedule[dow][time][tfdId]["weeksAndAuds"])
+                        let weeks = []
+                        let audsStrings = []
+                        auds.forEach((a) => {
+                            weeks.push(...this.state.teacherSchedule[dow][time][tfdId]["weeksAndAuds"][a])
+
+                            let minWeek = Math.min(...this.state.teacherSchedule[dow][time][tfdId]["weeksAndAuds"][a])
+                            let obj = {}
+                            obj[minWeek] = this.GatherWeeksToString(
+                                this.state.teacherSchedule[dow][time][tfdId]["weeksAndAuds"][a])
+                                + " - " + a
+                            audsStrings.push(obj)
+                        })
+
+                        audsStrings.sort((a,b) => {
+                            let aVal = Object.keys(a)[0]
+                            let bVal = Object.keys(b)[0]
+
+                            return aVal - bVal
+                        })
+
+                        audsStrings = audsStrings.map((obj) => {
+                            let key = Object.keys(obj)[0]
+                            return obj[key]
+                        })
+
+
+                        let audsString = ""
+                        if (auds.length === 1) {
+                            audsString = auds[0]
+                        } else {
+                            audsString = audsStrings.map((aud, index) => (<div key={index}>{aud}</div>))
+                        }
+
+                        let weeksString = "(" +
+                            this.GatherWeeksToString(weeks)
+                            + ")"
+
+                        let timeStr = firsttime ? time: ""
+
+                        const timeCol = (timeStr !== "") ?
+                            ((tfdIds.length === 1) ?
+                                (
+                                    <TableRowColumn
+                                        style={ this.styles.timecolumn } >
+                                        {timeStr}
+                                    </TableRowColumn>
+                                ) :
+                                (
+                                    <TableRowColumn
+                                        rowSpan={tfdIds.length}
+                                        style={ this.styles.timecolumn } >
+                                        {timeStr}
+                                    </TableRowColumn>
+                                )) : null
+
+                        firsttime = false
+
+                        return(
+                            <TableRow key={tfdId} style={{"borderBottom": "1px solid rgb(224, 224, 224)"}}>
+                                {timeCol}
+                                <TableRowColumn>
+                                    {this.state.teacherSchedule[dow][time][tfdId]["lessons"][0].discName} <br />
+                                    {this.state.teacherSchedule[dow][time][tfdId]["lessons"][0].groupName} <br />
+                                    {weeksString} <br />
+                                    {audsString}
+                                </TableRowColumn>
+                            </TableRow>
                         )
                     })
 
+                    return (
+                        [tfdLessons]
+                    )
+                })
+
                 return (
-                    <Card key={index}>
+                    <Card key={dow}>
                         <CardHeader
-                            title={dateString}
-                            subtitle={dowString}
+                            title={ruDOW[dow]}
+                            subtitle={""}
                         />
                         <CardText>
-                            <div className="groupScheduleTableDiv">
-                                <table className="groupScheduleTable">
-                                    <tbody>
-                                    {dayLessons}
-                                    </tbody>
-                                </table>
-                            </div>
+                            <Table key={dow}>
+                                <TableBody displayRowCheckbox={false}>
+                                    {dowLessons}
+                                </TableBody>
+                            </Table>
                         </CardText>
-                    </Card>)
+                    </Card>
+                )
             })
 
-        const TeacherWeekScheduleWrapper =
-            (this.state.teacherSchedule.length === 0) ?
-                (<h3>Занятий нет</h3>) :
-                (<div>{TeacherWeekScheduleItems}</div>)
 
         return (
             <App>
@@ -204,7 +428,6 @@ class TeacherSchedule extends Component {
                         />
 
                         <CardText>
-
                             <AutoComplete
                                 style={ this.styles.teachersListWidth }
                                 hintText="Выберите преподавателя"
@@ -221,13 +444,34 @@ class TeacherSchedule extends Component {
                             <br />
 
                             <SelectField
+                                multiple={ this.state.severalWeeks }
                                 style={ this.styles.weeksListWidth }
                                 floatingLabelText="Выберите неделю"
-                                value={this.state.week}
+                                value={this.state.weeks}
                                 onChange={this.selectedWeekChanged.bind(this)}
                             >
                                 {weeks}
                             </SelectField>
+
+                            <Toggle
+                                label="Несколько недель"
+                                style={this.styles.toggle}
+                                defaultToggled={false}
+                                toggled = {this.state.severalWeeks}
+                                onToggle = {() => {
+                                    let oldStateSeveralWeeks = this.state.severalWeeks
+
+                                    this.setState({ severalWeeks: !this.state.severalWeeks })
+
+                                    if (!oldStateSeveralWeeks) {
+                                        this.setState({ chooseWeekTip: "Выберите недели" })
+                                        this.selectedWeekChanged(null, null, [this.state.weeks], 'many')
+                                    } else {
+                                        this.setState({ chooseWeekTip: "Выберите неделю" })
+                                        this.selectedWeekChanged(null, null, this.state.weeks[0], 'one')
+                                    }
+                                } }
+                            />
 
                         </CardText>
 
@@ -235,7 +479,7 @@ class TeacherSchedule extends Component {
 
                     <Card>
                         <CardText>
-                            {TeacherWeekScheduleWrapper}
+                            {WeekScheduleItems}
                         </CardText>
                     </Card>
                 </div>

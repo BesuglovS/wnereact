@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import App from '../containers/App'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import Utilities from "../core/Utilities";
 
 class GroupDisciplines extends Component {
     state = {
@@ -77,8 +78,11 @@ class GroupDisciplines extends Component {
         let groupDisciplinesItems = this.state.groupDisciplines.map((disc, index) => (
             <tr key={index}>
                 <td>{disc.Name}</td>
-                <td>{disc.StudentGroupName}</td>
+                <td>{disc.GroupName}</td>
                 <td>{disc.AuditoriumHours}</td>
+                <td style={{backgroundColor: Utilities.GetPercentColorString(disc.AuditoriumHours, disc.hoursCount)}}>
+                    {disc.hoursCount}
+                </td>
                 <td>{disc.LectureHours}</td>
                 <td>{disc.PracticalHours}</td>
                 <td>{Attestation[disc.Attestation]}</td>
@@ -93,7 +97,8 @@ class GroupDisciplines extends Component {
                         <tr>
                             <td>Дисциплина</td>
                             <td>Группа</td>
-                            <td>Аудиторные часы</td>
+                            <td>Часы</td>
+                            <td>В рас-писании</td>
                             <td>Лекции</td>
                             <td>Практики</td>
                             <td>Отчётность</td>

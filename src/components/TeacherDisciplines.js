@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import App from '../containers/App'
 import AutoComplete from 'material-ui/AutoComplete';
+import Utilities from "../core/Utilities";
 
 class TeacherDisciplines extends Component {
     state = {
@@ -50,9 +51,9 @@ class TeacherDisciplines extends Component {
     updateDisciplineList(teacherId) {
         let tId = (teacherId !== undefined) ? teacherId : this.state.teacherId;
         if (tId === "" || tId == null) return
-        //http://wiki.nayanova.edu/api.php?action=list&listtype=teacherDisciplines&teacherId=57
+        //http://wiki.nayanova.edu/api.php?action=list&listtype=disciplines&teacherId=13
         let teacherScheduleUrl =
-            'http://wiki.nayanova.edu/api.php?action=list&listtype=teacherDisciplines&teacherId=' +
+            'http://wiki.nayanova.edu/api.php?action=list&listtype=disciplines&teacherId=' +
             tId;
         fetch(teacherScheduleUrl)
             .then((data) => data.json())
@@ -80,8 +81,11 @@ class TeacherDisciplines extends Component {
         let teacherDisciplinesItems = this.state.teacherDisciplines.map((disc, index) => (
             <tr key={index}>
                 <td>{disc.Name}</td>
-                <td>{disc.StudentGroupName}</td>
+                <td>{disc.GroupName}</td>
                 <td>{disc.AuditoriumHours}</td>
+                <td style={{backgroundColor: Utilities.GetPercentColorString(disc.AuditoriumHours, disc.hoursCount)}}>
+                    {disc.hoursCount}
+                </td>
                 <td>{disc.LectureHours}</td>
                 <td>{disc.PracticalHours}</td>
                 <td>{Attestation[disc.Attestation]}</td>
@@ -97,7 +101,8 @@ class TeacherDisciplines extends Component {
                             <tr>
                                 <td>Дисциплина</td>
                                 <td>Группа</td>
-                                <td>Аудиторные часы</td>
+                                <td>Часы</td>
+                                <td>В рас-писании</td>
                                 <td>Лекции</td>
                                 <td>Практики</td>
                                 <td>Отчётность</td>

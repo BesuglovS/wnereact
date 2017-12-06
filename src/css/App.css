@@ -94,7 +94,8 @@ table.groupDisciplinesTable td:nth-child(1) {
 table.groupDisciplinesTable td:nth-child(2),
 table.groupDisciplinesTable td:nth-child(3),
 table.groupDisciplinesTable td:nth-child(4),
-table.groupDisciplinesTable td:nth-child(5)
+table.groupDisciplinesTable td:nth-child(5),
+table.groupDisciplinesTable td:nth-child(6)
 {
     text-align: center;
 }
@@ -103,7 +104,7 @@ table.groupDisciplinesTable td:nth-child(5)
 table.groupDisciplinesTable tbody td {
     color: #00496B;
     border-left: 1px solid #E1EEF4;
-    font-size: 0.55em;
+    font-size: 0.5em;
     font-weight: normal;
 }
 

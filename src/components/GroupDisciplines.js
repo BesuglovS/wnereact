@@ -98,7 +98,7 @@ class GroupDisciplines extends Component {
                             <td>Дисциплина</td>
                             <td>Группа</td>
                             <td>Часы</td>
-                            <td>В рас-писании</td>
+                            <td>В рас&#13;писании</td>
                             <td>Лекции</td>
                             <td>Практики</td>
                             <td>Отчётность</td>

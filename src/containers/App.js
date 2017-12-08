@@ -64,6 +64,10 @@ class App extends Component {
                                 <MenuItem onClick={this.handleClose}>Экзамены по группам</MenuItem>
                             </Link>
 
+                            <Link to="/teacherSession" style={{ textDecoration: 'none' }}>
+                                <MenuItem onClick={this.handleClose}>Экзамены преподавателя</MenuItem>
+                            </Link>
+
                             <Link to="/groupDisciplines" style={{ textDecoration: 'none' }}>
                                 <MenuItem onClick={this.handleClose}>Дисциплины группы</MenuItem>
                             </Link>

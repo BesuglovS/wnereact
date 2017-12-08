@@ -2,6 +2,8 @@ import React, {Component} from 'react';
 import App from '../containers/App'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
+import moment from 'moment'
+import 'moment/locale/ru';
 
 class GroupSession extends Component {
     state = {
@@ -53,6 +55,19 @@ class GroupSession extends Component {
             .then((json) => {
 
                 let exams = json[studentGroupId].Exams
+
+                exams.sort((a,b) => {
+                    let aMoment = (a["ConsultationDateTime"] === "") ?
+                        moment(a["ExamDateTime"], "DD.MM.YYYY h:mm") :
+                        moment(a["ConsultationDateTime"], "DD.MM.YYYY h:mm")
+                    let bMoment = (b["ConsultationDateTime"] === "") ?
+                        moment(b["ExamDateTime"], "DD.MM.YYYY h:mm") :
+                        moment(b["ConsultationDateTime"], "DD.MM.YYYY h:mm")
+
+                    if (aMoment.isBefore(bMoment)) return -1
+                    if (bMoment.isBefore(aMoment)) return 1
+                    return 0
+                })
 
                 exams.forEach((item) => {
                     if (item.ConsultationDateTime.indexOf(" ") !== -1) {

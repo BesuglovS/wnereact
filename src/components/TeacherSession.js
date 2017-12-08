@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import App from '../containers/App'
 import AutoComplete from 'material-ui/AutoComplete';
+import moment from "moment/moment";
 
 
 class TeacherSession extends Component {
@@ -28,7 +29,7 @@ class TeacherSession extends Component {
                 const teacherId = localStorage.getItem("teacherIdDisciplines");
                 if (teacherId) {
                     this.setState({ teacherId: teacherId });
-                    this.selectedTeacherChanged(null, null, teacherId)
+                    this.selectedTeacherChanged("",[])
                 }
             })
             .catch(function(error) {
@@ -58,6 +59,19 @@ class TeacherSession extends Component {
         fetch(teacherScheduleUrl)
             .then((data) => data.json())
             .then((json) => {
+                json.sort((a,b) => {
+                    let aMoment = (a["ConsultationDateTime"] === "") ?
+                        moment(a["ExamDateTime"], "DD.MM.YYYY h:mm") :
+                        moment(a["ConsultationDateTime"], "DD.MM.YYYY h:mm")
+                    let bMoment = (b["ConsultationDateTime"] === "") ?
+                        moment(b["ExamDateTime"], "DD.MM.YYYY h:mm") :
+                        moment(b["ConsultationDateTime"], "DD.MM.YYYY h:mm")
+
+                    if (aMoment.isBefore(bMoment)) return -1
+                    if (bMoment.isBefore(aMoment)) return 1
+                    return 0
+                })
+
                 json.forEach((item) => {
                     if (item.ConsultationDateTime.indexOf(" ") !== -1) {
                         let split = item.ConsultationDateTime.split(' ')

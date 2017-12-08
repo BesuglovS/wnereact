@@ -58,13 +58,9 @@ class DisciplineLessons extends Component {
                         item["studentGroupName"].startsWith("6 ") ||
                         item["studentGroupName"].startsWith("7 "))
                     {
-                        this.setState({
-                            hoursByLesson: 1
-                        })
+                        item["hoursByLesson"] = 1
                     } else {
-                        this.setState({
-                            hoursByLesson: 2
-                        })
+                        item["hoursByLesson"] = 2
                     }
 
                     item["summary"] =
@@ -91,7 +87,7 @@ class DisciplineLessons extends Component {
             tfdId: val
         })
 
-        this.updateLessonsList(val)
+        this.updateLessonsList(val, valArray[0]["hoursByLesson"])
     }
 
     selectedTeacherChanged (searchText, dataSource) {
@@ -124,7 +120,7 @@ class DisciplineLessons extends Component {
         })
     }
 
-    updateLessonsList(tfdId) {
+    updateLessonsList(tfdId, hoursByLesson) {
         if (tfdId === this.state.tfdId) return
         let tId = (tfdId !== undefined) ? tfdId : this.state.tfdId;
         if (tId === "" || tId == null) return
@@ -154,9 +150,9 @@ class DisciplineLessons extends Component {
                     let month = momentDate.month()
 
                     if (!lessonsByMonth.hasOwnProperty(month)) {
-                        lessonsByMonth[month] = this.state.hoursByLesson
+                        lessonsByMonth[month] = hoursByLesson
                     } else {
-                        lessonsByMonth[month] += this.state.hoursByLesson
+                        lessonsByMonth[month] += hoursByLesson
                     }
                 })
 

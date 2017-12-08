@@ -10,6 +10,7 @@ import TeacherSchedule from './components/TeacherSchedule'
 import BuildingOneDaySpace from './components/BuildingOneDaySpace'
 import LastLesson from './components/LastLesson'
 import DisciplineLessons from "./components/DisciplineLessons";
+import GroupSession from "./components/GroupSession";
 
 ReactDOM.render(
     <BrowserRouter basename="/">
@@ -22,6 +23,7 @@ ReactDOM.render(
             <Route path="/buildingOneDaySpace" component={BuildingOneDaySpace}/>
             <Route path="/lastLesson" component={LastLesson}/>
             <Route path="/disciplineLessons" component={DisciplineLessons}/>
+            <Route path="/groupSession" component={GroupSession}/>
         </div>
     </BrowserRouter>,
     document.getElementById('root'));

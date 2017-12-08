@@ -4,6 +4,7 @@ import AutoComplete from 'material-ui/AutoComplete';
 import moment from 'moment'
 import 'moment/locale/ru';
 import { Table, TableBody, TableRow, TableRowColumn } from 'material-ui/Table';
+import {Card, CardText} from 'material-ui/Card';
 
 class DisciplineLessons extends Component {
     state = {
@@ -12,7 +13,9 @@ class DisciplineLessons extends Component {
         tfdId: '',
         tfdList:[],
         tfdTeacherList:[],
-        lessonsList:[]
+        lessonsList:[],
+        hoursByLesson: -1,
+        lessonsByMonth: {}
     }
 
     styles = {
@@ -43,10 +46,27 @@ class DisciplineLessons extends Component {
         let tfdListAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=tfdListExpanded';
 
         fetch(tfdListAPIUrl)
-        fetch(tfdListAPIUrl)
             .then((data) => data.json())
             .then((json) => {
                 json.forEach(item => {
+                    if (
+                        item["studentGroupName"].startsWith("1 ") ||
+                        item["studentGroupName"].startsWith("2 ") ||
+                        item["studentGroupName"].startsWith("3 ") ||
+                        item["studentGroupName"].startsWith("4 ") ||
+                        item["studentGroupName"].startsWith("5 ") ||
+                        item["studentGroupName"].startsWith("6 ") ||
+                        item["studentGroupName"].startsWith("7 "))
+                    {
+                        this.setState({
+                            hoursByLesson: 1
+                        })
+                    } else {
+                        this.setState({
+                            hoursByLesson: 2
+                        })
+                    }
+
                     item["summary"] =
                         item["studentGroupName"] + " " +
                         item["disciplineName"]
@@ -124,14 +144,25 @@ class DisciplineLessons extends Component {
                     return 0
                 })
 
+                let lessonsByMonth = {}
+
                 json.forEach(item => {
                     item.Moment = moment(item.Date + " " + item.Time)
                     item.Time = item.Time.substr(0,5)
-                    item.Date = moment(item.Date).locale('ru').format('DD MMMM')
+                    let momentDate = moment(item.Date)
+                    item.Date = momentDate.locale('ru').format('DD MMMM')
+                    let month = momentDate.month()
+
+                    if (!lessonsByMonth.hasOwnProperty(month)) {
+                        lessonsByMonth[month] = this.state.hoursByLesson
+                    } else {
+                        lessonsByMonth[month] += this.state.hoursByLesson
+                    }
                 })
 
                 this.setState({
-                    lessonsList: json
+                    lessonsList: json,
+                    lessonsByMonth
                 })
             })
             .catch(function(error) {
@@ -180,10 +211,38 @@ class DisciplineLessons extends Component {
                 </Table>
             )
 
+        let lessonsByMonthKeys = Object
+            .keys(this.state.lessonsByMonth)
+            .sort((a,b) => (a - b))
+
+        const monthList = lessonsByMonthKeys.map((monthNumber) => {
+            let monthHours = this.state.lessonsByMonth[monthNumber]
+
+            return (
+                <TableRow key={monthNumber} >
+                    <TableRowColumn>
+                        {moment([2000,1,1]).month(monthNumber).locale('ru').format('MMMM')}
+                    </TableRowColumn>
+                    <TableRowColumn>
+                        {monthHours}
+                    </TableRowColumn>
+                </TableRow>
+            )}
+        )
+
+        const monthTable = (this.state.lessonsList.length === 0) ?
+            (<span></span>) :
+            (
+                <Table>
+                    <TableBody displayRowCheckbox={false}>
+                        {monthList}
+                    </TableBody>
+                </Table>
+            )
+
         return (
             <App>
                 <div className="teacherDisciplinesDiv containerPadding1">
-                    <h2>Список занятий по дисциплине</h2>
                     <AutoComplete
                         style={ this.styles.teachersListWidth }
                         hintText="Выберите преподавателя"
@@ -210,7 +269,17 @@ class DisciplineLessons extends Component {
                         filter={AutoComplete.fuzzyFilter}
                         onUpdateInput={this.selectedTfdChanged.bind(this)}
                     />
-                    {disciplinesLessonsWrapper}
+
+                    <Card key={2}>
+                        <CardText>
+                            {monthTable}
+                        </CardText>
+                    </Card>
+                    <Card key={3}>
+                        <CardText>
+                            {disciplinesLessonsWrapper}
+                        </CardText>
+                    </Card>
                 </div>
             </App>
         )

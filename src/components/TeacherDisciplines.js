@@ -96,13 +96,13 @@ class TeacherDisciplines extends Component {
         let groupDisciplinesTableDiv =
             (this.state.teacherDisciplines.length !== 0) ? (
                 <div className="groupDisciplinesTableDiv">
-                    <table className="groupDisciplinesTable">
+                    <table className="groupDisciplinesTable smallerFont">
                         <tbody>
                             <tr>
                                 <td>Дисциплина</td>
                                 <td>Группа</td>
                                 <td>Часы</td>
-                                <td>В рас&#13;писании</td>
+                                <td>В расписании</td>
                                 <td>Лекции</td>
                                 <td>Практики</td>
                                 <td>Отчётность</td>

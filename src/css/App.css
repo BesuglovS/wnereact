@@ -199,3 +199,10 @@ div.lastLessonDiv {
     max-width: 420px;
     font-size: 0.7em;
 }
+
+table.smallerFont tbody tr td {
+    font-size: 0.4em;
+    padding-left: 3px;
+    padding-right: 3px;
+}
+

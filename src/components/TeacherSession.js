@@ -18,7 +18,7 @@ class TeacherSession extends Component {
     }
 
     componentDidMount() {
-        let teachersListAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=teachers';
+        let teachersListAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=teachers&sessionList';
         fetch(teachersListAPIUrl)
             .then((data) => data.json())
             .then((json) => {

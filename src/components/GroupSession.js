@@ -14,7 +14,7 @@ class GroupSession extends Component {
     }
 
     componentDidMount() {
-        let mainGroupsAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=mainStudentGroups';
+        let mainGroupsAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=mainStudentGroups&sessionList';
         fetch(mainGroupsAPIUrl)
             .then((data) => data.json())
             .then((json) => {

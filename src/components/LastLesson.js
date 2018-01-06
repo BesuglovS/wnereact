@@ -21,10 +21,14 @@ class LastLesson extends Component {
                     groupsList: json
                 })
 
-                const groupId = localStorage.getItem("groupIdDisciplines");
-                if (groupId) {
-                    this.setState({ groupId: groupId });
-                    this.selectedGroupChanged(null, null, groupId)
+                const groupName = localStorage.getItem("groupName");
+                let groups = json.filter(g => g.Name === groupName)
+
+                if (groups.length > 0) {
+                    let group = groups[0]
+
+                    this.setState({ groupId: group.StudentGroupId });
+                    this.selectedGroupChanged(null, null, group.StudentGroupId)
                 }
             })
             .catch(function(error) {
@@ -33,7 +37,10 @@ class LastLesson extends Component {
     }
 
     selectedGroupChanged (e, key, val) {
-        localStorage.setItem("groupIdDisciplines", val);
+        let groups = this.state.groupsList.filter(g => g.StudentGroupId === val)
+        if (groups.length > 0) {
+            localStorage.setItem("groupName", groups[0].Name);
+        }
 
         this.setState({
             groupId: val

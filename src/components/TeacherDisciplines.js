@@ -7,7 +7,8 @@ class TeacherDisciplines extends Component {
     state = {
         teacherId: '',
         teachersList:[],
-        teacherDisciplines:[]
+        teacherDisciplines:[],
+        TeacherListSearchText: "",
     }
 
     styles = {
@@ -25,10 +26,16 @@ class TeacherDisciplines extends Component {
                     teachersList: json
                 })
 
-                const teacherId = localStorage.getItem("teacherIdDisciplines");
-                if (teacherId) {
-                    this.setState({ teacherId: teacherId });
-                    this.selectedTeacherChanged(null, null, teacherId)
+                const teacherFIO = localStorage.getItem("teacherFIO");
+                let teachers = json.filter(t => t.FIO === teacherFIO)
+
+                if (teachers.length > 0) {
+                    this.setState({
+                        teacherId: teachers[0].TeacherId,
+                        TeacherListSearchText: teachers[0].FIO,
+                    });
+
+                    this.selectedTeacherChanged(teachers[0].FIO, json)
                 }
             })
             .catch(function(error) {
@@ -37,9 +44,15 @@ class TeacherDisciplines extends Component {
     }
 
     selectedTeacherChanged (searchText, dataSource) {
+        this.setState({
+            TeacherListSearchText: searchText
+        })
+
         let valArray = dataSource.filter(i => i.FIO.indexOf(searchText) >= 0)
         let val = (valArray.length > 0) ? valArray[0].TeacherId : null
-        localStorage.setItem("teacherIdDisciplines", val);
+        if (val === null) return
+
+        localStorage.setItem("teacherFIO", valArray[0].FIO);
 
         this.setState({
             teacherId: val
@@ -66,8 +79,6 @@ class TeacherDisciplines extends Component {
                 console.log(error)
             });
     }
-
-
 
     render() {
         const Attestation = {
@@ -129,6 +140,7 @@ class TeacherDisciplines extends Component {
                         fullWidth={true}
                         filter={AutoComplete.fuzzyFilter}
                         onUpdateInput={this.selectedTeacherChanged.bind(this)}
+                        searchText={this.state.TeacherListSearchText}
                     />
                     {groupDisciplinesTableDiv}
                 </div>

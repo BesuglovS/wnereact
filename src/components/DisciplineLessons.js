@@ -15,7 +15,8 @@ class DisciplineLessons extends Component {
         tfdTeacherList:[],
         lessonsList:[],
         hoursByLesson: -1,
-        lessonsByMonth: {}
+        lessonsByMonth: {},
+        TeacherListSearchText: ""
     }
 
     styles = {
@@ -25,24 +26,6 @@ class DisciplineLessons extends Component {
     }
 
     componentDidMount() {
-        let teachersListAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=teachers';
-        fetch(teachersListAPIUrl)
-            .then((data) => data.json())
-            .then((json) => {
-                this.setState({
-                    teachersList: json
-                })
-
-                const teacherId = localStorage.getItem("teacherIdDisciplines");
-                if (teacherId) {
-                    this.setState({ teacherId: teacherId });
-                    this.selectedTeacherChanged("",[])
-                }
-            })
-            .catch(function(error) {
-                console.log(error)
-            });
-
         let tfdListAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=tfdListExpanded';
 
         fetch(tfdListAPIUrl)
@@ -72,16 +55,39 @@ class DisciplineLessons extends Component {
                     tfdList: json
                 })
 
+                let teachersListAPIUrl = 'http://wiki.nayanova.edu/api.php?action=list&listtype=teachers';
+                fetch(teachersListAPIUrl)
+                    .then((data) => data.json())
+                    .then((json) => {
+                        this.setState({
+                            teachersList: json
+                        })
+
+                        const teacherFIO = localStorage.getItem("teacherFIO");
+                        let teachers = json.filter(t => t.FIO === teacherFIO)
+
+                        if (teachers.length > 0) {
+                            this.setState({
+                                teacherId: teachers[0].TeacherId,
+                                TeacherListSearchText: teachers[0].FIO,
+                            });
+
+                            this.selectedTeacherChanged(teachers[0].FIO, json)
+                        }
+                    })
+                    .catch(function(error) {
+                        console.log(error)
+                    });
+
             })
-        .catch(function(error) {
-            console.log(error)
-        });
+            .catch(function(error) {
+                console.log(error)
+            });
     }
 
     selectedTfdChanged (searchText, dataSource) {
         let valArray = dataSource.filter(i => i["summary"].indexOf(searchText) >= 0)
         let val = (valArray.length > 0) ? valArray[0].TeacherForDisciplineId: null
-        localStorage.setItem("tfdIdLessonList", val);
 
         this.setState({
             tfdId: val
@@ -91,9 +97,15 @@ class DisciplineLessons extends Component {
     }
 
     selectedTeacherChanged (searchText, dataSource) {
+        this.setState({
+            TeacherListSearchText: searchText
+        })
+
         let valArray = dataSource.filter(i => i.FIO.indexOf(searchText) >= 0)
         let val = (valArray.length > 0) ? valArray[0].TeacherId : null
-        localStorage.setItem("teacherIdDisciplineLessons", val);
+        if (val === null) return
+
+        localStorage.setItem("teacherFIO", valArray[0].FIO);
 
         this.setState({
             teacherId: val
@@ -110,9 +122,10 @@ class DisciplineLessons extends Component {
 
     updateDisciplinesList(teacherId) {
         let teacher = this.state.teachersList
-            .filter(t => t.TeacherId === this.state.teacherId);
+            .filter(t => t.TeacherId === teacherId);
         if (teacher.length === 0) return
         teacher = teacher[0]
+
         let tfdList = this.state.tfdList.filter(tfd => tfd.teacherFIO === teacher.FIO);
 
         this.setState({
@@ -250,6 +263,7 @@ class DisciplineLessons extends Component {
                         fullWidth={true}
                         filter={AutoComplete.fuzzyFilter}
                         onUpdateInput={this.selectedTeacherChanged.bind(this)}
+                        searchText={this.state.TeacherListSearchText}
                     />
 
                     <AutoComplete

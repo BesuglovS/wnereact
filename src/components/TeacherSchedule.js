@@ -18,7 +18,8 @@ class TeacherSchedule extends Component {
         teacherSchedule:[],
         semesterStarts: null,
         severalWeeks: false,
-        chooseWeekTip: "Выберите неделю"
+        chooseWeekTip: "Выберите неделю",
+        TeacherListSearchText: "",
     }
 
     styles = {
@@ -45,11 +46,18 @@ class TeacherSchedule extends Component {
                     teachersList: json
                 })
 
-                const teacherId = localStorage.getItem("teacherId");
-                if (teacherId) {
-                    this.setState({ teacherId: teacherId });
-                    this.selectedTeacherChanged(null, null, teacherId)
+                const teacherFIO = localStorage.getItem("teacherFIO");
+                let teachers = json.filter(t => t.FIO === teacherFIO)
+
+                if (teachers.length > 0) {
+                    this.setState({
+                        teacherId: teachers[0].TeacherId,
+                        TeacherListSearchText: teachers[0].FIO,
+                    });
+
+                    this.selectedTeacherChanged(teachers[0].FIO, json)
                 }
+
             })
             .catch(function(error) {
                 console.log(error)
@@ -123,6 +131,10 @@ class TeacherSchedule extends Component {
     }
 
     selectedTeacherChanged (searchText, dataSource) {
+        this.setState({
+            TeacherListSearchText: searchText
+        })
+
         if (dataSource === null) {
             this.setState({
                 teacherSchedule: []
@@ -132,7 +144,9 @@ class TeacherSchedule extends Component {
 
         let valArray = dataSource.filter(i => i.FIO.indexOf(searchText) >= 0)
         let val = (valArray.length > 0) ? valArray[0].TeacherId : null
-        localStorage.setItem("teacherId", val);
+        if (val === null) return
+
+        localStorage.setItem("teacherFIO", valArray[0].FIO);
 
         this.setState({
             teacherId: val
@@ -339,6 +353,7 @@ class TeacherSchedule extends Component {
                                 fullWidth={true}
                                 filter={AutoComplete.fuzzyFilter}
                                 onUpdateInput={this.selectedTeacherChanged.bind(this)}
+                                searchText={this.state.TeacherListSearchText}
                             />
 
                             <br />

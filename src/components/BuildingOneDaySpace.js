@@ -33,9 +33,13 @@ class BuildingOneDaySpace extends Component {
                     buildingsList: json
                 })
 
-                const buildingId = localStorage.getItem("buildingId");
-                if (buildingId) {
-                    this.setState({ buildingId: buildingId });
+                const buildingName = localStorage.getItem("buildingName");
+
+                let b = json.filter(b => b.Name === buildingName)
+
+                if (b.length > 0) {
+                    let buildingId = b[0].BuildingId
+
                     this.selectedBuildingChanged(null, null, buildingId)
                 }
             })
@@ -92,7 +96,11 @@ class BuildingOneDaySpace extends Component {
     }
 
     selectedBuildingChanged (e, key, val) {
-        localStorage.setItem("buildingId", val);
+        let building = this.state.buildingsList.filter(b => b.BuildingId === val)
+
+        if (building.length > 0) {
+            localStorage.setItem("buildingName", building[0].Name);
+        }
 
         this.setState({
             buildingId: val

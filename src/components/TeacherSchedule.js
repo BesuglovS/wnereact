@@ -20,6 +20,7 @@ class TeacherSchedule extends Component {
         severalWeeks: false,
         chooseWeekTip: "Выберите неделю",
         TeacherListSearchText: "",
+        weeksList:[],
     }
 
     styles = {
@@ -68,12 +69,23 @@ class TeacherSchedule extends Component {
             .then((data) => data.json())
             .then((json) => {
                 let ss = json.filter(i => i["Key"] === "Semester Starts")
-                if (ss.length > 0) {
+                let se = json.filter(i => i["Key"] === "Semester Ends")
+                if (ss.length > 0 && se.length > 0) {
                     let semesterString = ss[0].Value;
                     let momentSemesterStarts = moment(semesterString).startOf('isoweek')
 
+                    let semesterEndsString = se[0].Value;
+                    let momentSemesterEnds = moment(semesterEndsString).startOf('isoweek')
+
+                    let weekCount = (momentSemesterEnds.diff(momentSemesterStarts, 'days') / 7) + 1
+                    let weekArray = []
+                    for(let i = 0; i < weekCount; i++) {
+                        weekArray.push(i+1)
+                    }
+
                     this.setState({
-                        semesterStarts: momentSemesterStarts
+                        semesterStarts: momentSemesterStarts,
+                        weeksList: weekArray,
                     })
 
                     let momentNow = moment();
@@ -152,15 +164,15 @@ class TeacherSchedule extends Component {
             teacherId: val
         })
 
-        var weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
+        let weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
 
         this.updateSchedule(val, weeks)
     }
 
     render() {
-        const weeks = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18]
+        const weeks = this.state.weeksList
             .map((week) => {
-                    var weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
+                    let weeks = Array.isArray(this.state.weeks) ? this.state.weeks : [this.state.weeks];
 
                     let weekLabel =
                         (this.state.semesterStarts !== null) ?
@@ -183,7 +195,7 @@ class TeacherSchedule extends Component {
                 }
             )
 
-        var dowList = Object.keys(this.state.teacherSchedule).sort()
+        let dowList = Object.keys(this.state.teacherSchedule).sort()
 
         let ruDOW = {
             1: "Понедельник",
@@ -202,7 +214,7 @@ class TeacherSchedule extends Component {
                     return null
                 }
 
-                var rings = Object.keys(this.state.teacherSchedule[dow])
+                let rings = Object.keys(this.state.teacherSchedule[dow])
                     .sort((a, b) => {
                         let splitA = a.split(":")
                         let splitB = b.split(":")

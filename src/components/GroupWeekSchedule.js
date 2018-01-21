@@ -228,7 +228,15 @@ class GroupWeekSchedule extends Component {
                         })
                         let minWeek2 = Math.min(...weeks2)
 
-                        return minWeek1 - minWeek2
+                        let weekDiff = minWeek1 - minWeek2
+                        if (weekDiff !== 0) {
+                            return weekDiff
+                        }
+
+                        let groupName1 = this.state.groupSchedule[dow][time][tfdId1]["lessons"][0].groupName
+                        let groupName2 = this.state.groupSchedule[dow][time][tfdId2]["lessons"][0].groupName
+
+                        return groupName1.localeCompare(groupName2);
                     })
 
                     let firsttime = true
@@ -292,11 +300,24 @@ class GroupWeekSchedule extends Component {
 
                         firsttime = false
 
+                        let groupName = ""
+                        let groups = this.state.groupsList.filter(g => g.StudentGroupId === this.state.groupId)
+                        if (groups.length > 0) {
+                            groupName = groups[0].Name
+                        }
+
+                        let groupString = ""
+                        let lessonGroupName = this.state.groupSchedule[dow][time][tfdId]["lessons"][0].groupName
+                        if (lessonGroupName !== groupName) {
+                            groupString = " (" + lessonGroupName + ")"
+                        }
+
                         return(
                             <TableRow key={tfdId} style={{"borderBottom": "1px solid rgb(224, 224, 224)"}}>
                                 {timeCol}
                                 <TableRowColumn>
-                                    {this.state.groupSchedule[dow][time][tfdId]["lessons"][0].discName} <br />
+                                    {this.state.groupSchedule[dow][time][tfdId]["lessons"][0].discName}<br />
+                                    {groupString}{(lessonGroupName !== groupName)?(<br />): null}
                                     {this.state.groupSchedule[dow][time][tfdId]["lessons"][0].teacherFIO} <br />
                                     {weeksString} <br />
                                     {audsString}

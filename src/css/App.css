@@ -206,3 +206,10 @@ table.smallerFont tbody tr td {
     padding-right: 3px;
 }
 
+.discNameAndFIO {
+    text-align: left !important;
+}
+
+.audName {
+    text-align: center !important;
+}

@@ -76,6 +76,35 @@ class GroupSchedule extends Component {
                     json = []
                 }
 
+                if (json.length > 1) {
+                    let prevTime = json[0].Time
+                    let base = 0
+                    let active = false;
+
+                    for (let i = 1; i < json.length; i++) {
+                        let item = json[i]
+                        item.skipTime = false;
+                        if (item.Time === prevTime) {
+                            if (!active) {
+                                active = true;
+                                base = i - 1
+                            }
+                        } else {
+                            if (active) {
+                                active = false
+                                json[base].Span = i-base
+                                for (let j = base+1; j < i; j++) {
+                                    json[j].skipTime = true;
+                                }
+                            }
+                        }
+
+                        prevTime = item.Time
+                    }
+                }
+
+                console.log(json)
+
                 this.setState({
                     groupSchedule: json
                 })
@@ -111,16 +140,36 @@ class GroupSchedule extends Component {
             <MenuItem key={group.StudentGroupId} value={group.StudentGroupId} primaryText={group.Name}/>
         )
 
-        const groupLessons = this.state.groupSchedule.map((lesson, index) => (
-            <tr key={index}>
-                <td>{lesson.Time}</td>
-                <td>
-                    {lesson.discName} <br />
-                    {lesson.FIO}
-                </td>
-                <td>{lesson.audName}</td>
-            </tr>
-        ))
+        const groupLessons = this.state.groupSchedule.map((lesson, index) =>
+            {
+                let groupName = ""
+                let groups = this.state.groupsList.filter(g => g.StudentGroupId === this.state.groupId)
+                if (groups.length > 0) {
+                    groupName = groups[0].Name
+                }
+
+                let groupString = ""
+                let lessonGroupName = lesson.groupName
+                if (lessonGroupName !== groupName) {
+                    groupString = " (" + lessonGroupName + ")"
+                }
+
+                return (
+                    <tr key={index}>
+                        {lesson.skipTime?
+                            (null):
+                            lesson.hasOwnProperty("Span")?
+                                (<td rowSpan={lesson.Span}>{lesson.Time}</td>):
+                                (<td>{lesson.Time}</td>)}
+                        <td className="discNameAndFIO">
+                            {lesson.discName}{groupString}<br />
+                            {lesson.FIO}
+                        </td>
+                        <td className="audName">{lesson.audName}</td>
+                    </tr>
+                )
+            }
+        )
 
         let lessonsTableItems = (this.state.groupSchedule.length !== 0) ? (
             <div className="groupScheduleTableDiv">

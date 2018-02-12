@@ -12,6 +12,7 @@ import LastLesson from './components/LastLesson'
 import DisciplineLessons from "./components/DisciplineLessons";
 import GroupSession from "./components/GroupSession";
 import TeacherSession from "./components/TeacherSession";
+import TeacherLessons from "./components/TeacherLessons";
 
 ReactDOM.render(
     <BrowserRouter basename="/">
@@ -26,6 +27,7 @@ ReactDOM.render(
             <Route path="/disciplineLessons" component={DisciplineLessons}/>
             <Route path="/groupSession" component={GroupSession}/>
             <Route path="/teacherSession" component={TeacherSession}/>
+            <Route path="/teacherLessons" component={TeacherLessons}/>
         </div>
     </BrowserRouter>,
     document.getElementById('root'));

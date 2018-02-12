@@ -87,6 +87,10 @@ class App extends Component {
                             <Link to="/disciplineLessons" style={{ textDecoration: 'none' }}>
                                 <MenuItem onClick={this.handleClose}>Список занятий по дисциплине</MenuItem>
                             </Link>
+
+                            <Link to="/teacherLessons" style={{ textDecoration: 'none' }}>
+                                <MenuItem onClick={this.handleClose}>Список занятий преподавателя</MenuItem>
+                            </Link>
                         </Drawer>
                         <main>
                             {this.props.children}

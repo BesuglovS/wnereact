@@ -67,7 +67,7 @@ class BuildingOneDaySpace extends Component {
         let date = (dt !== undefined) ? dt : this.state.scheduleDate;
 
         //http://wiki.nayanova.edu/new/api/api?action=dailyBuildingSchedule&date=2017-11-30&buildingId=1
-        let dailyScheduleAPIUrl = 'http://wiki.nayanova.edu/new/api/api?action=dailyBuildingSchedule&date=' +
+        let dailyScheduleAPIUrl = 'http://wiki.nayanova.edu/new/api/api?action=dailyBuildingSchedule' +
             '&date=' + this.formatDate(date) +
             '&buildingId=' + buildingId;
         fetch(dailyScheduleAPIUrl)

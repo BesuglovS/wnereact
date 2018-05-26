@@ -81,7 +81,11 @@ class App extends Component {
                             </Link>
 
                             <Link to="/lastLesson" style={{ textDecoration: 'none' }}>
-                                <MenuItem onClick={this.handleClose}>Последний урок</MenuItem>
+                                <MenuItem onClick={this.handleClose}>Последний урок (по группе)</MenuItem>
+                            </Link>
+
+                            <Link to="/lastLessonFaculty" style={{ textDecoration: 'none' }}>
+                                <MenuItem onClick={this.handleClose}>Последний урок (по факультету)</MenuItem>
                             </Link>
 
                             <Link to="/disciplineLessons" style={{ textDecoration: 'none' }}>

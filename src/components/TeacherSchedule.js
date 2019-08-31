@@ -308,11 +308,15 @@ class TeacherSchedule extends Component {
 
                         firsttime = false
 
+                        const boldStyle = {fontWeight: 700}
+
                         return(
                             <TableRow key={tfdId} style={{"borderBottom": "1px solid rgb(224, 224, 224)"}}>
                                 {timeCol}
                                 <TableRowColumn>
-                                    {this.state.teacherSchedule[dow][time][tfdId]["lessons"][0].discName} <br />
+                                    <span style={boldStyle}>
+                                        {this.state.teacherSchedule[dow][time][tfdId]["lessons"][0].discName}
+                                    </span> <br />
                                     {this.state.teacherSchedule[dow][time][tfdId]["lessons"][0].groupName} <br />
                                     {weeksString} <br />
                                     {audsString}

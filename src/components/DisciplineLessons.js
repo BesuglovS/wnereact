@@ -93,7 +93,9 @@ class DisciplineLessons extends Component {
             tfdId: val
         })
 
-        this.updateLessonsList(val, valArray[0]["hoursByLesson"])
+        if (valArray[0] !== undefined) {
+            this.updateLessonsList(val, valArray[0]["hoursByLesson"])
+        }
     }
 
     selectedTeacherChanged (searchText, dataSource) {

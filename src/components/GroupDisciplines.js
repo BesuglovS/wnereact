@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import App from '../containers/App'
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
-import Utilities from "../core/Utilities";
 
 class GroupDisciplines extends Component {
     state = {
@@ -81,17 +80,13 @@ class GroupDisciplines extends Component {
             <MenuItem key={group.StudentGroupId} value={group.StudentGroupId} primaryText={group.Name}/>
         )
 
-        let groupDisciplinesItems = this.state.groupDisciplines.map((disc, index) => (
+        let groupDisciplinesItems = Object.keys(this.state.groupDisciplines).map((index) => (
             <tr key={index}>
-                <td>{disc.Name}</td>
-                <td>{disc.GroupName}</td>
-                <td>{disc.AuditoriumHours}</td>
-                <td style={{backgroundColor: Utilities.GetPercentColorString(disc.AuditoriumHours, disc.hoursCount)}}>
-                    {disc.hoursCount}
-                </td>
-                <td>{disc.LectureHours}</td>
-                <td>{disc.PracticalHours}</td>
-                <td>{Attestation[disc.Attestation]}</td>
+                <td>{this.state.groupDisciplines[index].Name}</td>
+                <td>{this.state.groupDisciplines[index].GroupName}</td>
+                <td>{this.state.groupDisciplines[index].AuditoriumHours}</td>
+                <td>{this.state.groupDisciplines[index].hoursCount}</td>
+                <td>{Attestation[this.state.groupDisciplines[index].Attestation]}</td>
             </tr>
         ))
 
@@ -105,8 +100,6 @@ class GroupDisciplines extends Component {
                             <td>Группа</td>
                             <td>Часы</td>
                             <td>В расписании</td>
-                            <td>Лекции</td>
-                            <td>Практики</td>
                             <td>Отчётность</td>
                         </tr>
                         {groupDisciplinesItems}

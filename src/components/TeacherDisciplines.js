@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import App from '../containers/App'
 import AutoComplete from 'material-ui/AutoComplete';
-import Utilities from "../core/Utilities";
 
 class TeacherDisciplines extends Component {
     state = {
@@ -92,13 +91,9 @@ class TeacherDisciplines extends Component {
         let teacherDisciplinesItems = this.state.teacherDisciplines.map((disc, index) => (
             <tr key={index}>
                 <td>{disc.Name}</td>
-                <td>{disc.GroupName}</td>
-                <td>{disc.AuditoriumHours}</td>
-                <td style={{backgroundColor: Utilities.GetPercentColorString(disc.AuditoriumHours, disc.hoursCount)}}>
-                    {disc.hoursCount}
-                </td>
-                <td>{disc.LectureHours}</td>
-                <td>{disc.PracticalHours}</td>
+                <td>{disc.groupName}</td>
+                <td>{disc.AuditoriumHoursPerWeek}</td>
+                <td>{disc.hoursCount}</td>
                 <td>{Attestation[disc.Attestation]}</td>
             </tr>
         ))
@@ -114,8 +109,6 @@ class TeacherDisciplines extends Component {
                                 <td>Группа</td>
                                 <td>Часы</td>
                                 <td>В расписании</td>
-                                <td>Лекции</td>
-                                <td>Практики</td>
                                 <td>Отчётность</td>
                             </tr>
                             {teacherDisciplinesItems}

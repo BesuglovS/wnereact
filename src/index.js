@@ -7,13 +7,13 @@ import GroupWeekSchedule from "./components/GroupWeekSchedule";
 import GroupDisciplines from './components/GroupDisciplines'
 import TeacherDisciplines from './components/TeacherDisciplines'
 import TeacherSchedule from './components/TeacherSchedule'
-import BuildingOneDaySpace from './components/BuildingOneDaySpace'
-import LastLesson from './components/LastLesson'
-import LastLessonFaculty from "./components/LastLessonFaculty";
 import DisciplineLessons from "./components/DisciplineLessons";
 import GroupSession from "./components/GroupSession";
 import TeacherSession from "./components/TeacherSession";
 import TeacherLessons from "./components/TeacherLessons";
+import { unregister } from './registerServiceWorker';
+
+unregister()
 
 ReactDOM.render(
     <BrowserRouter basename="/md">
@@ -23,9 +23,9 @@ ReactDOM.render(
             <Route path="/teacherDisciplines" component={TeacherDisciplines}/>
             <Route path="/teacherSchedule" component={TeacherSchedule}/>
             <Route path="/groupDaySchedule" component={GroupSchedule}/>
-            <Route path="/buildingOneDaySpace" component={BuildingOneDaySpace}/>
-            <Route path="/lastLesson" component={LastLesson}/>
-            <Route path="/lastLessonFaculty" component={LastLessonFaculty}/>
+            {/*<Route path="/buildingOneDaySpace" component={BuildingOneDaySpace}/>*/}
+            {/*<Route path="/lastLesson" component={LastLesson}/>*/}
+            {/*<Route path="/lastLessonFaculty" component={LastLessonFaculty}/>*/}
             <Route path="/disciplineLessons" component={DisciplineLessons}/>
             <Route path="/groupSession" component={GroupSession}/>
             <Route path="/teacherSession" component={TeacherSession}/>

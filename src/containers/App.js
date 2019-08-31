@@ -29,7 +29,7 @@ class App extends Component {
                 <MuiThemeProvider>
                     <div>
                         <AppBar
-                            title={"Расписание СГОАН"}
+                            title={"Расписание академии Наяновой"}
                             iconClassNameRight="muidocs-icon-navigation-expand-more"
                             onLeftIconButtonTouchTap={this.handleToggle}
                         />
@@ -43,7 +43,7 @@ class App extends Component {
                             <div onClick={this.handleClose}
                                  className="containerPadding1 menuTop">
                                 <MenuIcon style={iconStyles} />
-                                <span>Расписание СГОАН</span>
+                                <span>Расписание академии Наяновой</span>
                             </div>
 
                             <Divider />
@@ -74,18 +74,6 @@ class App extends Component {
 
                             <Link to="/teacherDisciplines" style={{ textDecoration: 'none' }}>
                                 <MenuItem onClick={this.handleClose}>Дисциплины преподавателя</MenuItem>
-                            </Link>
-
-                            <Link to="/buildingOneDaySpace" style={{ textDecoration: 'none' }}>
-                                <MenuItem onClick={this.handleClose}>Занятость корпуса</MenuItem>
-                            </Link>
-
-                            <Link to="/lastLesson" style={{ textDecoration: 'none' }}>
-                                <MenuItem onClick={this.handleClose}>Последний урок (по группе)</MenuItem>
-                            </Link>
-
-                            <Link to="/lastLessonFaculty" style={{ textDecoration: 'none' }}>
-                                <MenuItem onClick={this.handleClose}>Последний урок (по факультету)</MenuItem>
                             </Link>
 
                             <Link to="/disciplineLessons" style={{ textDecoration: 'none' }}>

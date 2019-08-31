@@ -312,11 +312,13 @@ class GroupWeekSchedule extends Component {
                             groupString = " (" + lessonGroupName + ")"
                         }
 
+                        const boldStyle = {fontWeight: 700}
+
                         return(
                             <TableRow key={tfdId} style={{"borderBottom": "1px solid rgb(224, 224, 224)"}}>
                                 {timeCol}
                                 <TableRowColumn>
-                                    {this.state.groupSchedule[dow][time][tfdId]["lessons"][0].discName}<br />
+                                    <span style={boldStyle}>{this.state.groupSchedule[dow][time][tfdId]["lessons"][0].discName}</span><br />
                                     {groupString}{(lessonGroupName !== groupName)?(<br />): null}
                                     {this.state.groupSchedule[dow][time][tfdId]["lessons"][0].teacherFIO} <br />
                                     {weeksString} <br />

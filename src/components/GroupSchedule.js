@@ -103,8 +103,6 @@ class GroupSchedule extends Component {
                     }
                 }
 
-                console.log(json)
-
                 this.setState({
                     groupSchedule: json
                 })
@@ -140,7 +138,8 @@ class GroupSchedule extends Component {
             <MenuItem key={group.StudentGroupId} value={group.StudentGroupId} primaryText={group.Name}/>
         )
 
-        const groupLessons = this.state.groupSchedule.map((lesson, index) =>
+        const groupLessons = (this.state.groupSchedule[0] !== undefined) ?
+            (this.state.groupSchedule[0].Lessons.map((lesson, index) =>
             {
                 let groupName = ""
                 let groups = this.state.groupsList.filter(g => g.StudentGroupId === this.state.groupId)
@@ -154,6 +153,8 @@ class GroupSchedule extends Component {
                     groupString = " (" + lessonGroupName + ")"
                 }
 
+                const boldStyle = {fontWeight: 700}
+
                 return (
                     <tr key={index}>
                         {lesson.skipTime?
@@ -162,16 +163,18 @@ class GroupSchedule extends Component {
                                 (<td rowSpan={lesson.Span}>{lesson.Time}</td>):
                                 (<td>{lesson.Time}</td>)}
                         <td className="discNameAndFIO">
-                            {lesson.discName}{groupString}<br />
+                            <span style={boldStyle}>{lesson.discName}</span> {groupString}<br />
                             {lesson.FIO}
                         </td>
                         <td className="audName">{lesson.audName}</td>
                     </tr>
                 )
             }
-        )
+        )) : {}
 
-        let lessonsTableItems = (this.state.groupSchedule.length !== 0) ? (
+        let lessonsTableItems = (this.state.groupSchedule[0] !== undefined &&
+            this.state.groupSchedule[0].Lessons !== undefined &&
+            this.state.groupSchedule[0].Lessons.length !== 0) ? (
             <div className="groupScheduleTableDiv">
                 <table className="groupScheduleTable">
                     <tbody>
@@ -216,6 +219,10 @@ class GroupSchedule extends Component {
                     </Card>
 
                     <Card>
+                        <CardHeader
+                            title="Расписание группы"
+                            subtitle=""
+                        />
                         <CardText>
                             {lessonsTableItems}
                         </CardText>
